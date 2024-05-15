@@ -1,4 +1,5 @@
 import requests
+from maybe_usefull_stuff import get_coordinates
 import csv
 
 """
@@ -10,14 +11,22 @@ TODO: implementing a method to extract location + coordinates
 
 
 class Locations:
-    def __init__(self, location=None):
+    def __init__(self, location=None, lat=None, lng=None):
         self.url = "https://transport.opendata.ch/v1/locations"  # TODO: make the url a static variable
         self.location = location
+        self.lat = lat
+        self.lng = lng
         self.stations = []
 
     def query_location_data(self):
         # Query the data of the chosen location, returning the data in json format
-        params = {"query": self.location, "type": "station"}
+        params = {}
+        if self.lat:
+            params["x"] = self.lat
+        if self.lng:
+            params["y"] = self.lng
+        else:
+            params = {"query": self.location, "type": "station"}
         try:
             response = requests.get(self.url, params=params)
             response.raise_for_status()
@@ -37,7 +46,7 @@ class Locations:
             print(name)
 
     def choose_station(self):
-        # Function to choose a station (probably dont need this)
+        # Function to choose a station (probably don't need this)
         for i, station in enumerate(self.stations, start=1):
             print(f"{i} - {station}")
 
@@ -54,8 +63,11 @@ class Locations:
 
 def main():
     location = input("Enter Location: ")
-    loc = Locations(location)
+    lat, lng = get_coordinates(location)
+    print(f"{location}: latitude: {lat} Longitude: {lng}")
+    loc = Locations(location, lat, lng)
     loc_data = loc.query_location_data()
+    print(loc_data)
     if loc_data:
         loc.get_station_names(loc_data)
         print("Stations in", location + ":")
