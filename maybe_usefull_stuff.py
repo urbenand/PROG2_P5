@@ -1,4 +1,5 @@
 import math
+from geopy.geocoders import Nominatim
 """
 for functions or code that may come in handy but has no right place atm
 
@@ -28,5 +29,34 @@ def test_haversine():
     print("Distance: {:.2f} km".format(distance))
 
 
+
+def get_coordinates(city_name):
+    geolocator = Nominatim(user_agent="RudolfUrbenPelichet")
+    location = geolocator.geocode(city_name)
+    if location:
+        return location.latitude, location.longitude
+    else:
+        print("City not found.")
+        return None, None
+
+
+def test_get_coordinates():
+    city_name = "Berlin"
+    lat, lng = get_coordinates(city_name)
+    if lat is not None and lng is not None:
+        print(f"Coordinates of {city_name}: Latitude={lat}, Longitude={lng}")
+
+def test_distance_coordianates():
+    city1 = "Zürich"
+    city2 = "Barcelona"
+    lat1, lng1 = get_coordinates(city1)
+    lat2, lng2 = get_coordinates(city2)
+    distance = haversine(lat1, lng1, lat2, lng2)
+    print(f"The Distance between {city1} and {city2} is {distance:.2f}km")
+
+
+
 if __name__ == "__main__":
     test_haversine()
+    test_get_coordinates()
+    test_distance_coordianates()
