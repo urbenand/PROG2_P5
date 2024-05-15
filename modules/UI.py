@@ -3,11 +3,14 @@ from datetime import datetime
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, \
     QPushButton, QTextEdit
 
+from modules import connection, location
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.connections = None
         self.setWindowTitle("Transport Search")
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
