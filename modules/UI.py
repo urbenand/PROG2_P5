@@ -73,7 +73,7 @@ class MainWindow(QMainWindow):
             if via_station:
                 params['via'] = via_station
 
-            response = self.fetch('http://transport.opendata.ch/v1/connections', params=params)
+            response = self.fetch('https://transport.opendata.ch/v1/connections', params=params)
 
             from_station = response.get('from', {}).get('name', '')
             to_station = response.get('to', {}).get('name', '')

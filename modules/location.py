@@ -1,4 +1,5 @@
 import requests
+import csv
 
 """
 Class to get information about the provided location and stations
