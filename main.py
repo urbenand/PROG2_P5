@@ -4,7 +4,7 @@
 # Authors: Vincent Pelichet, Andreas Rudolf, Andreas Urben
 
 # Imports
-from modules import location, connection, UI
+from modules import locations, connections, UI
 from PySide6.QtWidgets import QApplication
 import csv
 

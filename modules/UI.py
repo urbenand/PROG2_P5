@@ -3,11 +3,14 @@ from datetime import datetime
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, \
     QPushButton, QTextEdit
 
+from modules import connections, locations
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.connections = None
         self.setWindowTitle("Transport Search")
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -52,6 +55,8 @@ class MainWindow(QMainWindow):
         return response.json()
 
     def search_connections(self):
+        # @TODO: Search connection by using connections module
+
         from_station = self.from_input.text()
         to_station = self.to_input.text()
         via_station = self.via_input.text()
