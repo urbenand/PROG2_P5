@@ -1,6 +1,8 @@
 import requests
 from datetime import datetime
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, \
+    QPushButton, QTextEdit
+
 
 class MainWindow(QMainWindow):
     def __init__(self):

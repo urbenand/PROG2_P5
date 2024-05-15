@@ -12,8 +12,9 @@ class Connections:
     Initialiser with all Possible values (mandatory and optional) for the request on
     transport.opendata.ch
     """
-    def __init__(self, departure, destination, via=None, date=None, time=None):
-        self.url = "http://transport.opendata.ch/v1/connections" # TODO: Url as static value not class attribute
+
+    def __init__(self, departure=None, destination=None, via=None, date=None, time=None):
+        self.url = "https://transport.opendata.ch/v1/connections"  # TODO: Url as static value not class attribute
         self.departure = departure
         self.destination = destination
         self.via = via
@@ -101,5 +102,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

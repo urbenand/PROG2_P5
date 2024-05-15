@@ -9,8 +9,8 @@ TODO: implementing a method to extract location + coordinates
 
 
 class Locations:
-    def __init__(self, location):
-        self.url = "http://transport.opendata.ch/v1/locations" # TODO: make the url a static variable
+    def __init__(self, location=None):
+        self.url = "https://transport.opendata.ch/v1/locations"  # TODO: make the url a static variable
         self.location = location
         self.stations = []
 
@@ -43,8 +43,8 @@ class Locations:
         while True:
             try:
                 choice = int(input("Enter Station Number: "))
-                if 1<= choice <= len(self.stations):
-                    return self.stations[choice-1]
+                if 1 <= choice <= len(self.stations):
+                    return self.stations[choice - 1]
                 else:
                     print("Invalid Number. Please choose valid station: ")
             except ValueError:
