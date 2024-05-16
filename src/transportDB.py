@@ -1,16 +1,17 @@
 from tinydb import TinyDB, Query
-from maybe_usefull_stuff import get_coordinates
+from maybe_usefull_stuff import get_coordinates, get_country_name
 import csv
 
 db = TinyDB("TransportDB")
 cities = db.table("cities")
 # TODO: Table for machine Lerning
 
-def add_cities(name, latitude, longitude):
+def add_cities(name, latitude, longitude, country):
     cities.insert({
         "name": name,
         "latitude": latitude,
         "longitude": longitude,
+        "country": country
     })
 
 def truncate_table():
@@ -34,11 +35,13 @@ with open("cities.csv", "r", encoding="utf-8",) as csvfile:
 def fill_db():
     for city in base_cities:
         x, y = get_coordinates(city[0])
-        print(city[0], x, y)
-        add_cities(city[0], x, y)
+        country = get_country_name(x, y)
+        print(city[0], x, y, country)
+        add_cities(city[0], x, y, country)
 
 
 def main():
+    truncate_table()
     fill_db()
 
 

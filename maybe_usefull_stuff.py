@@ -39,6 +39,18 @@ def get_coordinates(city_name):
         print("City not found.")
         return None, None
 
+def get_country_name(latitude, longitude):
+    geolocator = Nominatim(user_agent="RudolfUrbenPelichet")
+    location = geolocator.reverse((latitude, longitude), exactly_one=True)
+    if location:
+        address = location.raw.get("address")
+        if address:
+            country = address.get("country")
+            if country:
+                country = country.split("/")[0].strip()
+            return country
+
+
 
 def test_get_coordinates():
     city_name = "Berlin"
@@ -50,7 +62,9 @@ def test_distance_coordianates():
     city1 = "Zürich"
     city2 = "Barcelona"
     lat1, lng1 = get_coordinates(city1)
+    print(get_country_name(lat1, lng1))
     lat2, lng2 = get_coordinates(city2)
+    print(get_country_name(lat2, lng2))
     distance = haversine(lat1, lng1, lat2, lng2)
     print(f"The Distance between {city1} and {city2} is {distance:.2f}km")
 
