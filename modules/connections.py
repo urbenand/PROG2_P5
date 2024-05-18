@@ -4,6 +4,7 @@ from datetime import datetime
 """
 Class Connections to check the connection and format the response of the website
 or just to return the json data
+TODO: Reevaluate what we really want to extracted and show
 """
 
 
