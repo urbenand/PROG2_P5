@@ -2,7 +2,6 @@ import math
 from geopy.geocoders import Nominatim
 """
 for functions or code that may come in handy but has no right place atm
-
 TODO: Check if anything useful can be used in our project
 """
 
