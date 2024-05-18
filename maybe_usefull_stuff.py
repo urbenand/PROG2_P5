@@ -1,12 +1,10 @@
 import math
 from geopy.geocoders import Nominatim
-
 """
 for functions or code that may come in handy but has no right place atm
 
 TODO: Check if anything useful can be used in our project
 """
-
 
 def haversine(lat1, lon1, lat2, lon2):
     """
@@ -18,7 +16,7 @@ def haversine(lat1, lon1, lat2, lon2):
     R = 6371.0  # Radius of the earth in km
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     distance = R * c
     return distance
@@ -29,6 +27,7 @@ def test_haversine():
     lat2, lon2 = 48.137, 11.575
     distance = haversine(lat1, lon1, lat2, lon2)
     print("Distance: {:.2f} km".format(distance))
+
 
 
 def get_coordinates(city_name):
@@ -59,7 +58,6 @@ def test_get_coordinates():
     if lat is not None and lng is not None:
         print(f"Coordinates of {city_name}: Latitude={lat}, Longitude={lng}")
 
-
 def test_distance_coordianates():
     city1 = "Zürich"
     city2 = "Barcelona"
@@ -69,6 +67,7 @@ def test_distance_coordianates():
     print(get_country_name(lat2, lng2))
     distance = haversine(lat1, lng1, lat2, lng2)
     print(f"The Distance between {city1} and {city2} is {distance:.2f}km")
+
 
 
 if __name__ == "__main__":
