@@ -2,16 +2,16 @@ import requests
 from datetime import datetime
 from maybe_usefull_stuff import format_duration
 
+
 class Connections:
     """
     Class to check the connection and format the response from transport.opendata.ch
     """
 
-    def __init__(self, departure, destination, date, time, via=None):
-        self.url = "http://transport.opendata.ch/v1/connections"  # Static URL
+    def __init__(self, departure, destination, date, time):
+        self.url = "https://transport.opendata.ch/v1/connections"  # Static URL
         self.departure = departure
         self.destination = destination
-        self.via = via
         self.date = date
         self.time = time
 
@@ -19,19 +19,11 @@ class Connections:
         """
         Fetches connection data from the API and returns the response as a JSON object.
         """
-        """        connection_url = f"{self.url}?from={self.departure}&to={self.destination}"
-        if self.via:
-            connection_url += f"&via={self.via}"
-        if self.date:
-            connection_url += f"&date={self.date.strftime('%Y-%m-%d')}"
-        if self.time:
-            connection_url += f"&time={self.time.strftime('%H:%M')}"""
         params = {
             "from": self.departure,
             "to": self.destination,
-            "via": self.via if self.via else None,
-            "date": self.date if self.date else None,
-            "time": self.time if self.time else None
+            "date": self.date,
+            "time": self.time
         }
 
         try:
