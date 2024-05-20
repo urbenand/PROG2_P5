@@ -2,3 +2,6 @@
 .idea/runConfigurations/main.xml
 __pycache__/maybe_usefull_stuff.cpython-312.pyc
 *.pyc
+__pycache__/maybe_usefull_stuff.cpython-312.pyc
+.idea/misc.xml
+.idea/PROG2_P5.iml
