@@ -1,48 +1,46 @@
-Country, Maincity
-Albanien, Tirana
-Andorra, Andorra la Vella
-Belarus, Minsk
-Belgien, Brüssel
-Bosnien und Herzegowina, Sarajevo
-Bulgarien, Sofia
-Dänemark, Kopenhagen
-Deutschland, Berlin
-Estland, Tallinn
-Finnland, Helsinki
-Frankreich, Paris
-Griechenland, Athen
-Irland, Dublin
-Island, Reykjavik
-Italien, Rom
-Kasachstan, Astana
-Kosovo, Pristina
-Kroatien, Zagreb
-Lettland, Riga
-Lichtenstein, Vaduz
-Litauen, Vilnius
-Luxemburg, Luxemburg
-Malta, Valletta
-Moldau, Chisinau
-Monaco, Monaco
-Montenegro, Podgorica
-Niederlande, Amsterdam
-Nordmazedonien, Skopje
-Norwegen, Oslo
-Österreich, Wien
-Polen, Warschau
-Portugal, Lissabon
-Rumänien, Bukarest
-Russland, Moskau
-San marino, San Marino
-Schweden, Stockholm
-Schweiz, Bern
-Serbien, Belgrad
-Slowakei, Bratislava
-Slowenien, Ljubljana
-Spanien, Madrid
-Tschechien, Prag
-Türkei, Ankara
-Ukraine, Kiew
-Ungarn, Budapest
-Vatikanstadt, Vatikanstadt
-Vereinigtes Königreich, London
+Country, Maincity, Weblink
+Albanien, Tirana, https://travel.gjirafa.com/en
+Andorra, Andorra la Vella, https://www.andorradirectbus.es/en/rates-and-discounts
+Belarus, Minsk, https://www.rw.by
+Belgien, Brüssel, https://www.belgiantrain.be/en
+Bosnien und Herzegowina, Sarajevo, https://buskarta.ba/EN
+Bulgarien, Sofia, https://www.busexpress.bg/en/
+Dänemark, Kopenhagen, https://www.publictransport.dk/getting-around
+Deutschland, Berlin, https://www.bahn.de
+Estland, Tallinn, https://kaugliinid.pilet.ee
+Finnland, Helsinki, https://www.matkahuolto.fi/passengers/bus-tickets-and-travel-cards
+Frankreich, Paris, https://www.sncf-connect.com/de-ch/
+Griechenland, Athen, https://tickets.hellenictrain.gr/dromologia/?lang=en
+Irland, Dublin, https://www.transportforireland.ie/plan-a-journey/
+Italien, Rom, https://www.italiarail.com
+Kasachstan, Astana, https://tickets.kz/en/gd/railwaytracker/route_table
+Kosovo, Pristina, https://www.sap-rks.com/en/stacioni-i-autobuseve-prishtine-4/
+Kroatien, Zagreb, https://prodaja.hzpp.hr/en
+Lettland, Riga, https://mobilly.lv/en/train-tickets/
+Lichtenstein, Vaduz, https://www.sbb.ch/de
+Litauen, Vilnius, https://ltglink.lt
+Luxemburg, Luxemburg, https://www.mobiliteit.lu/en/plan-a-trip/
+Moldau, Chisinau,
+Monaco, Monaco, https://www.sncf-connect.com/de-ch/
+Montenegro, Podgorica,
+Niederlande, Amsterdam, https://www.ns.nl/en/tickets
+Nordmazedonien, Skopje,
+Norwegen, Oslo, https://entur.no
+Österreich, Wien, https://fahrplan.oebb.at/webapp/#!P|TP!H|359078
+Polen, Warschau, https://de.e-podroznik.pl/
+Portugal, Lissabon, https://www.cp.pt/passageiros/en
+Rumänien, Bukarest,
+Russland, Moskau,
+San marino, San Marino,
+Schweden, Stockholm,
+Schweiz, Bern, https://www.sbb.ch/de
+Serbien, Belgrad,
+Slowakei, Bratislava, https://www.slovaklines.sk/en/
+Slowenien, Ljubljana, https://arriva.si/en/
+Spanien, Madrid, https://www.renfe.com/es/en
+Tschechien, Prag, https://idos.idnes.cz/vlakyautobusymhdvse/spojeni/?format=html
+Türkei, Ankara,
+Ukraine, Kiew,
+Ungarn, Budapest,
+Vatikanstadt, Vatikanstadt,
+Vereinigtes Königreich, London, https://tfl.gov.uk/plan-a-journey/
