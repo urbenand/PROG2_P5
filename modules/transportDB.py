@@ -61,10 +61,10 @@ def fill_cities():
 
 def fill_countries():
     countries_csv = get_countries()
-    for german_name, city in countries_csv:
+    for german_name, city, web_link in countries_csv:
         x, y = get_coordinates(city)
         name = get_country_name(x, y)
-        add_countries(german_name, name, city)
+        add_countries(german_name, name, city, web_link)
 
 
 def main():
