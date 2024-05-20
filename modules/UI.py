@@ -11,9 +11,10 @@ from PySide6.QtWidgets import (
     QDateEdit,
     QTimeEdit,
     QDialog,
+    QTextEdit,
 )
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
+from PySide6.QtCore import QSize, QDate, QTime, QModelIndex, Qt
 from connections import Connections
 import qdarkstyle
 
@@ -59,10 +60,10 @@ class ConnectionInfoWindow(QDialog):
         self.tree_view.setModel(self.model)
         layout.addWidget(self.tree_view)
 
-        self.tree_view.setColumnWidth(0, 200)
-        self.tree_view.setColumnWidth(1, 200)
-        self.tree_view.setColumnWidth(2, 200)
-        self.tree_view.setColumnWidth(3, 200)
+        self.tree_view.setColumnWidth(0, 150)
+        self.tree_view.setColumnWidth(1, 150)
+        self.tree_view.setColumnWidth(2, 150)
+        self.tree_view.setColumnWidth(3, 150)
 
 
 class MainWindow(QMainWindow):
@@ -135,6 +136,20 @@ class MainWindow(QMainWindow):
         self.result_tree.setColumnWidth(3, 80)
         self.result_tree.setColumnWidth(4, 60)
 
+        status_label = QLabel("Status Information")
+        layout.addWidget(status_label)
+
+        self.status_info = QTextEdit()
+        self.status_info.setReadOnly(True)
+        self.status_info.setFixedHeight(50)
+        layout.addWidget(self.status_info)
+
+        self.map_view = QLabel("MAP HERE")
+        self.map_view.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.map_view)
+
+        self.update_status_info()
+
     def check_input_fields(self):
         if self.departure_input.text().strip() and self.destination_input.text().strip():
             self.search_button.setEnabled(True)
@@ -175,6 +190,9 @@ class MainWindow(QMainWindow):
         selected_connection = self.connection_info[selected_row]
         info_window = ConnectionInfoWindow(selected_connection)
         info_window.exec()
+
+    def update_status_info(self, status_text="BRB"):
+        self.status_info.setPlainText(status_text)
 
 
 if __name__ == "__main__":
