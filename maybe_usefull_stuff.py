@@ -1,5 +1,6 @@
 import math
 from geopy.geocoders import Nominatim
+import re
 """
 for functions or code that may come in handy but has no right place atm
 TODO: Check if anything useful can be used in our project
@@ -67,6 +68,20 @@ def test_distance_coordianates():
     distance = haversine(lat1, lng1, lat2, lng2)
     print(f"The Distance between {city1} and {city2} is {distance:.2f}km")
 
+def format_duration(duration):
+    match = re.match(r"(\d+)d(\d+):(\d+):(\d+)", duration)
+    if not match:
+        return duration
+
+    days, hours, minutes, seconds = map(int, match.groups())
+    total_minutes = days* 24 * 60 + hours * 60 + minutes
+
+    if total_minutes // 60 == 0:
+        formatted_duration = f"{total_minutes % 60} min."
+    else:
+        formatted_duration = f"{total_minutes // 60} Hours {total_minutes % 60} min."
+
+    return formatted_duration
 
 
 if __name__ == "__main__":
