@@ -22,6 +22,7 @@ class ConnectionInfoWindow(QDialog):
     def __init__(self, connection_info):
         super().__init__()
         self.setWindowTitle("Connection Information")
+        self.setMinimumSize(600, 400)
         layout = QVBoxLayout()
         self.setLayout(layout)
 
@@ -34,16 +35,21 @@ class ConnectionInfoWindow(QDialog):
             departure_info = section.get("departure", {})
             arrival_info = section.get("arrival", {})
 
-            journey_item = QStandardItem(
-                f"{journey.get('category', 'N/A')} {journey.get('number', 'N/A')} "
-                f"Direction: {journey.get('to', 'N/A')}"
-            )
+            if journey:
+                journey_item = QStandardItem(
+                    f"{journey.get('category', 'N/A')} {journey.get('number', 'N/A')}\n"
+                    f"Direction: {journey.get('to', 'N/A')}"
+                )
+            else:
+                journey_item = QStandardItem(
+                    f"Walk Duration:\n{int(section.get('walk_duration') / 60)} minutes"
+                )
             departure_item = QStandardItem(
-                f"{departure_info.get('station_name', 'N/A')} "
+                f"{departure_info.get('station_name', 'N/A')}\n"
                 f"{departure_info.get('departure', 'N/A').split(' ')[1] if 'departure' in departure_info else 'N/A'}"
             )
             arrival_item = QStandardItem(
-                f"{arrival_info.get('station_name', 'N/A')} "
+                f"{arrival_info.get('station_name', 'N/A')}\n"
                 f"{arrival_info.get('arrival', 'N/A').split(' ')[1] if 'arrival' in arrival_info else 'N/A'}"
             )
             to_item = QStandardItem(journey.get("to", "N/A"))
@@ -52,6 +58,11 @@ class ConnectionInfoWindow(QDialog):
 
         self.tree_view.setModel(self.model)
         layout.addWidget(self.tree_view)
+
+        self.tree_view.setColumnWidth(0, 200)
+        self.tree_view.setColumnWidth(1, 200)
+        self.tree_view.setColumnWidth(2, 200)
+        self.tree_view.setColumnWidth(3, 200)
 
 
 class MainWindow(QMainWindow):
@@ -143,15 +154,16 @@ class MainWindow(QMainWindow):
             print(connections_info)
             if connections_info:
                 for connection in connections_info:
+                    products = connection.get("products", [])
+                    products_numbers = ", ".join(products)
                     connection_item = QStandardItem(
-                        f"{connection['sections'][0]['journey']['category']}"
-                        f"{connection['sections'][0]['journey']['number']}"
-                        f" - Direction {connection['sections'][0]['journey']['to']}")
+                        f"{products_numbers}"
+                        f" - To {connection['to']['name']}")
                     self.result_model.appendRow(connection_item)
                     self.result_model.setItem(connection_item.row(), 1,
-                                              QStandardItem(connection["sections"][0]["departure"]["departure"]))
+                                              QStandardItem(connection["from"]["departure"]))
                     self.result_model.setItem(connection_item.row(), 2,
-                                              QStandardItem(connection["sections"][-1]["arrival"]["arrival"]))
+                                              QStandardItem(connection["to"]["arrival"]))
                     self.result_model.setItem(connection_item.row(), 3,
                                               QStandardItem(connection["duration"]))
                     self.result_model.setItem(connection_item.row(), 4, QStandardItem(str(connection["transfers"])))

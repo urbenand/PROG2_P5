@@ -16,11 +16,13 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 modules_dir = os.path.join(current_dir, "modules")
 sys.path.append(modules_dir)
 
+
 def main():
     app = QApplication([])
     main_window = MainWindow()
     main_window.show()
     app.exec()
+
 
 if __name__ == '__main__':
     main()
