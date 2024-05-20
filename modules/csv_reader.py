@@ -1,6 +1,6 @@
 import csv
 
-# TODO: Change to CSV Reader Class
+# TODO: Change to CSV Reader Class, maybe merge the functions to one
 
 def get_base_cities():
     base_cities = []

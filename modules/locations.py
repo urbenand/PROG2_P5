@@ -7,6 +7,7 @@ Class to get information about the provided location and stations
 and returning the data as json or as a list of all station in the chosen location
 
 TODO: implementing a method to extract location + coordinates 
+Drop this if not needed!!
 """
 
 
