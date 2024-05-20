@@ -40,7 +40,7 @@ def get_coordinates(city_name):
 
 def get_country_name(latitude, longitude):
     geolocator = Nominatim(user_agent="RudolfUrbenPelichet")
-    location = geolocator.reverse((latitude, longitude), exactly_one=True)
+    location = geolocator.reverse((latitude, longitude), exactly_one=True, encode="utf-8")
     if location:
         address = location.raw.get("address")
         if address:

@@ -43,10 +43,31 @@ class Connections:
             return None
 
     def check_connection(self):
-        """
+        connection_data = self.connection_data()
+        departure_info = {}
+        via_info = {}
+        arrival_info = {}
+        if connection_data:
+            for connection in connection_data.get("connections"):
+                departure_info["departure"] = connection["from"]["departure"]
+                departure_info["platform"] = connection["from"]["platform"]
+                departure_info["station"] = connection["from"]["station"]["name"]
+                arrival_info["arrival"] = connection["to"]["arrival"]
+                arrival_info["platform"] = connection["to"]["platform"]
+                arrival_info["station"] = connection["to"]["station"]["name"]
+            return departure_info, arrival_info
+        else:
+            raise Exception("No Connection fund!")   #TODO: implement logic to search for nearest point
+
+
+
+
+ """   
+    def check_connection(self):
+
         gets the Info and extracts departure arrival duration and number of transfers
         out of the Json data
-        """
+    
         connection_data = self.connection_data()
         connection_info = []
         if connection_data:
@@ -62,7 +83,7 @@ class Connections:
                 connection_info.append((departure_dt, arrival_dt, duration, transfers))
         else:
             print("Failed to retrieve connection information")
-        return connection_info
+        return connection_info"""
 
 
 def format_duration(duration_str):
