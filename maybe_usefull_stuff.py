@@ -1,10 +1,12 @@
 import math
 from geopy.geocoders import Nominatim
 import re
+
 """
 for functions or code that may come in handy but has no right place atm
 TODO: Check if anything useful can be used in our project
 """
+
 
 def haversine(lat1, lon1, lat2, lon2):
     """
@@ -16,7 +18,7 @@ def haversine(lat1, lon1, lat2, lon2):
     R = 6371.0  # Radius of the earth in km
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     distance = R * c
     return distance
@@ -29,7 +31,6 @@ def test_haversine():
     print("Distance: {:.2f} km".format(distance))
 
 
-
 def get_coordinates(city_name):
     geolocator = Nominatim(user_agent="RudolfUrbenPelichet")
     location = geolocator.geocode(city_name)
@@ -38,6 +39,7 @@ def get_coordinates(city_name):
     else:
         print("City not found.")
         return None, None
+
 
 def get_country_name(latitude, longitude):
     geolocator = Nominatim(user_agent="RudolfUrbenPelichet")
@@ -51,12 +53,12 @@ def get_country_name(latitude, longitude):
             return country
 
 
-
 def test_get_coordinates():
     city_name = "Berlin"
     lat, lng = get_coordinates(city_name)
     if lat is not None and lng is not None:
         print(f"Coordinates of {city_name}: Latitude={lat}, Longitude={lng}")
+
 
 def test_distance_coordianates():
     city1 = "Zürich"
@@ -68,13 +70,14 @@ def test_distance_coordianates():
     distance = haversine(lat1, lng1, lat2, lng2)
     print(f"The Distance between {city1} and {city2} is {distance:.2f}km")
 
+
 def format_duration(duration):
     match = re.match(r"(\d+)d(\d+):(\d+):(\d+)", duration)
     if not match:
         return duration
 
     days, hours, minutes, seconds = map(int, match.groups())
-    total_minutes = days* 24 * 60 + hours * 60 + minutes
+    total_minutes = days * 24 * 60 + hours * 60 + minutes
 
     if total_minutes // 60 == 0:
         formatted_duration = f"{total_minutes % 60} min."
