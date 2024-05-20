@@ -1,5 +1,7 @@
 import plotly.graph_objects as go
 from maybe_usefull_stuff import get_coordinates
+import pydoc
+
 
 class Map:
     def __init__(self, cities):
@@ -7,17 +9,8 @@ class Map:
             mode="markers+lines",
             lon=self.get_coord_list(cities, "lon"),
             lat=self.get_coord_list(cities, "lat"),
-            marker={'size': 10}
+            marker={'size': 20}
         ))
-
-        # lon = [8.05185, 8.23490],
-        # lat = [47.39121, 47.37365],
-        '''fig.add_trace(go.Scattermapbox(
-            mode="markers+lines",
-            lon=[7.59, 7.43],
-            lat=[47.546, 46.948],
-            marker={'size': 10}
-        ))'''
 
         fig.update_layout(
             margin={'l': 0, 't': 0, 'r': 0, 'b': 0},
@@ -55,8 +48,21 @@ class Map:
         return coord_list
 
     def get_center(self, cities):
-        lon_diff = abs(float(cities[0]["lon"]) - float(cities[1]["lon"])) / 2
-        lat_diff = abs(float(cities[0]["lat"]) - float(cities[1]["lat"])) / 2
+        print(cities[0]["lon"])
+        print(cities[0]["lat"])
+        print(cities[1]["lon"])
+        print(cities[1]["lat"])
+
+        if cities[0]["lon"] > cities[1]["lon"]:
+            lon_diff = abs(float(cities[0]["lon"]) - float(cities[1]["lon"])) / 2
+        else:
+            lon_diff = abs(float(cities[0]["lon"]) + float(cities[1]["lon"])) / 2
+
+        if cities[0]["lat"] > cities[1]["lat"]:
+            lat_diff = abs(float(cities[0]["lat"]) - float(cities[1]["lat"])) / 2
+        else:
+            lat_diff = abs(float(cities[0]["lat"]) + float(cities[1]["lat"])) / 2
+
 
         lon_calculated = float(cities[1]["lon"]) - lon_diff
         lat_calculated = float(cities[0]["lat"]) - lat_diff
@@ -71,24 +77,27 @@ def main():
     # { 'City': {'lat': 47.546, 'lon': 7.59} }
 
     # Example data
-    cities = [{
-        'lat': 47.39121,
-        'lon': 8.05185
-    },
-        {
-            'lat': 47.37365,
-            'lon': 8.2349
-        }
-    ]
+    '''    cities = [{
+            'lat': 47.39121,
+            'lon': 8.05185
+        },
+            {
+                'lat': 47.37365,
+                'lon': 8.2349
+            }
+        ]'''
 
-    city = ["Aarau", "Rothrist", "Bern"]
+    cities = []
+
+    city = ["Zürich", "Winterthur"]
 
     for cit in city:
-        pass
-        # print(get_coordinates(cit))
+        lat, lon = get_coordinates(cit)
+        cities.append({'lat': lat, 'lon': lon})
 
     Map(cities)
 
 
 if __name__ == '__main__':
     main()
+    pydoc.writedoc('my_module')
