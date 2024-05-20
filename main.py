@@ -4,33 +4,23 @@
 # Authors: Vincent Pelichet, Andreas Rudolf, Andreas Urben
 
 # Imports
-from modules import locations, connections, UI
+import sys
+import os
+from modules import locations, connections
+from modules.connections import Connections
+from modules.UI import MainWindow
 from PySide6.QtWidgets import QApplication
 import csv
 
-
-def read_key_cities():
-    key_cities = []
-
-    with open("src/cities_stations.csv", "r", encoding="utf-8") as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            key_cities.append(row)
-
-    return key_cities
-
-
-class Application:
-    def __init__(self):
-        app = QApplication([])
-        window = UI.MainWindow()
-        window.show()
-        app.exec()
-
+current_dir = os.path.dirname(os.path.abspath(__file__))
+modules_dir = os.path.join(current_dir, "modules")
+sys.path.append(modules_dir)
 
 def main():
-    app = Application()
-
+    app = QApplication([])
+    main_window = MainWindow()
+    main_window.show()
+    app.exec()
 
 if __name__ == '__main__':
     main()

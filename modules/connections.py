@@ -1,20 +1,14 @@
 import requests
 from datetime import datetime
-
-"""
-Class Connections to check the connection and format the response of the website
-or just to return the json data
-"""
-
+from maybe_usefull_stuff import format_duration
 
 class Connections:
     """
-    Initialiser with all Possible values (mandatory and optional) for the request on
-    transport.opendata.ch
+    Class to check the connection and format the response from transport.opendata.ch
     """
 
-    def __init__(self, departure=None, destination=None, via=None, date=None, time=None):
-        self.url = "https://transport.opendata.ch/v1/connections"  # TODO: Url as static value not class attribute
+    def __init__(self, departure, destination, date, time, via=None):
+        self.url = "http://transport.opendata.ch/v1/connections"  # Static URL
         self.departure = departure
         self.destination = destination
         self.via = via
@@ -22,83 +16,155 @@ class Connections:
         self.time = time
 
     def connection_data(self):
-        """ connection data updates the URL with the right syntax
-        then it will start the request with the updated url and returns the response as a json file
         """
-        connection_url = f"{self.url}?from={self.departure}&to={self.destination}"
+        Fetches connection data from the API and returns the response as a JSON object.
+        """
+        """        connection_url = f"{self.url}?from={self.departure}&to={self.destination}"
         if self.via:
             connection_url += f"&via={self.via}"
         if self.date:
             connection_url += f"&date={self.date.strftime('%Y-%m-%d')}"
         if self.time:
-            connection_url += f"&time={self.time.strftime('%H:%M')}"
-        # implemented Errorhandling for request exceptions
+            connection_url += f"&time={self.time.strftime('%H:%M')}"""
+        params = {
+            "from": self.departure,
+            "to": self.destination,
+            "via": self.via if self.via else None,
+            "date": self.date if self.date else None,
+            "time": self.time if self.time else None
+        }
+
         try:
-            response = requests.get(connection_url)
+            response = requests.get(self.url, params=params)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
             return None
 
-    def check_connection(self):
+    def connection_data_extraction(self):
         """
-        gets the Info and extracts departure arrival duration and number of transfers
-        out of the Json data
+        Extracts and returns relevant information from the connection data.
         """
-        connection_data = self.connection_data()
-        connection_info = []
-        if connection_data:
-            for connection in connection_data.get("connections", []):
-                departure = connection["from"]["departure"]
-                arrival = connection["to"]["arrival"]
-                duration = connection["duration"]
-                transfers = connection["transfers"]
+        data = self.connection_data()
+        if not data:
+            return None
 
-                departure_dt = datetime.fromisoformat(departure)
-                arrival_dt = datetime.fromisoformat(arrival)
+        connections_info = []
 
-                connection_info.append((departure_dt, arrival_dt, duration, transfers))
-        else:
-            print("Failed to retrieve connection information")
-        return connection_info
+        for connection in data['connections']:
+            departure_dt = datetime.fromisoformat(connection["from"]["departure"])
+            arrival_dt = datetime.fromisoformat(connection["to"]["arrival"])
 
+            connection_info = {
+                'from': {
+                    'id': connection['from']['station']['id'],
+                    'name': connection['from']['station']['name'],
+                    'departure': departure_dt.strftime("%d.%m.%Y %H:%M"),
+                },
+                'to': {
+                    'id': connection['to']['station']['id'],
+                    'name': connection['to']['station']['name'],
+                    'arrival': arrival_dt.strftime("%d.%m.%Y %H:%M"),
+                    'platform': connection['to']['platform']
+                },
+                'duration': format_duration(connection['duration']),
+                'transfers': connection['transfers'],
+                'products': connection['products'],
+                'sections': []
+            }
 
-def format_duration(duration_str):
-    # Check for correct Format.
-    if 'd' in duration_str and ':' in duration_str:
-        # extract day and time, then split the time in hours, minutes and seconds
-        days, time = duration_str.split("d")
-        hours, minutes, seconds = time.split(":")
-        # Calculate everything in minutes
-        total_minutes = int(days) * 24 * 60 + int(hours) * 60 + int(minutes)
-        # convert it into H:M
-        formatted_hours = total_minutes // 60
-        formatted_minutes = total_minutes % 60
-        return f"{formatted_hours}h {formatted_minutes}m"
-    else:
-        return "Invalid duration format"
+            for section in connection['sections']:
+                section_info = {}
 
+                if 'journey' in section and section['journey']:
+                    journey = section['journey']
+                    section_info['journey'] = {
+                        'name': journey.get('name'),
+                        'category': journey.get('category'),
+                        'number': journey.get('number'),
+                        'operator': journey.get('operator'),
+                        'to': journey.get('to')
+                    }
+
+                if section.get('walk'):
+                    section_info['walk_duration'] = section['walk']['duration']
+
+                departure = section['departure']
+                sec_dep_dt = datetime.fromisoformat(departure["departure"])
+                section_info['departure'] = {
+                    'station_id': departure['station']['id'],
+                    'station_name': departure['station']['name'],
+                    'departure': sec_dep_dt.strftime("%d.%m.%Y %H:%M"),
+                }
+
+                if 'arrival' in section:
+                    arrival = section['arrival']
+                    sec_arr_dt = datetime.fromisoformat(arrival["arrival"])
+                    section_info['arrival'] = {
+                        'station_id': arrival['station']['id'],
+                        'station_name': arrival['station']['name'],
+                        'arrival': sec_arr_dt.strftime("%d.%m.%Y %H:%M"),
+                    }
+
+                connection_info['sections'].append(section_info)
+
+            connections_info.append(connection_info)
+
+        return connections_info
 
 def main():
-    departure = "Othmarsingen Bahnhof"
-    destination = "Zürich HB"
-    con = Connections(departure, destination)
-    connections_info = con.check_connection()
-    print(connections_info)
+    departure = input("Enter departure: ")
+    destination = input("Enter destination: ")
+    con = Connections(departure, destination, date="2024-05-19", time="10:00")
+    connections_info = con.connection_data_extraction()
 
-    if connections_info:
-        print("Connection Information:")
-        print("{:<40} {:<40} {:<15} {:<10}".format("Departure", "Arrival", "Duration", "Transfers"))
-        for connection in connections_info:
-            departure = connection[0].strftime("%Y-%m-%d %H:%M:%S %Z")
-            arrival = connection[1].strftime("%Y-%m-%d %H:%M:%S %Z")
-            duration = format_duration(connection[2])
-            transfers = connection[3]
-            print("{:<40} {:<40} {:<15} {:<10}".format(departure, arrival, duration, transfers))
-    else:
-        print("Failed to retrieve connection information")
+    if not connections_info:
+        print("No connections found.")
+        return
 
+    for connection_info in connections_info:
+        print("From:")
+        print(f"  ID: {connection_info['from']['id']}")
+        print(f"  Name: {connection_info['from']['name']}")
+        print(f"  Departure: {connection_info['from']['departure']}")
+
+        print("\nTo:")
+        print(f"  ID: {connection_info['to']['id']}")
+        print(f"  Name: {connection_info['to']['name']}")
+        print(f"  Arrival: {connection_info['to']['arrival']}")
+        print(f"  Platform: {connection_info['to']['platform']}")
+
+        print(f"\nDuration: {connection_info['duration']}")
+        print(f"Transfers: {connection_info['transfers']}")
+        print(f"Products: {', '.join(connection_info['products'])}")
+
+        print("\nSections:")
+        for section in connection_info['sections']:
+            if 'journey' in section:
+                journey = section['journey']
+                print(f"  Journey:")
+                print(f"    Name: {journey['name']}")
+                print(f"    Category: {journey['category']}")
+                print(f"    Number: {journey['number']}")
+                print(f"    Operator: {journey['operator']}")
+                print(f"    To: {journey['to']}")
+
+            if 'walk_duration' in section:
+                print(f"  Walk Duration: {section['walk_duration']} seconds")
+
+            print("  Departure:")
+            departure = section['departure']
+            print(f"    Station ID: {departure['station_id']}")
+            print(f"    Station Name: {departure['station_name']}")
+            print(f"    Departure: {departure['departure']}")
+
+            if 'arrival' in section:
+                print("  Arrival:")
+                arrival = section['arrival']
+                print(f"    Station ID: {arrival['station_id']}")
+                print(f"    Station Name: {arrival['station_name']}")
+                print(f"    Arrival: {arrival['arrival']}")
 
 if __name__ == "__main__":
     main()

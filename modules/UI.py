@@ -1,108 +1,174 @@
-import requests
-from datetime import datetime
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, \
-    QPushButton, QTextEdit
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QTreeView,
+    QDateEdit,
+    QTimeEdit,
+    QDialog,
+)
+from PySide6.QtGui import QStandardItemModel, QStandardItem
+from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
+from connections import Connections
+import qdarkstyle
 
-from modules import connections, locations
+
+class ConnectionInfoWindow(QDialog):
+    def __init__(self, connection_info):
+        super().__init__()
+        self.setWindowTitle("Connection Information")
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        self.tree_view = QTreeView()
+        self.model = QStandardItemModel()
+        self.model.setHorizontalHeaderLabels(["Information", "Departure", "Arrival", "To"])
+
+        for section in connection_info.get("sections", []):
+            journey = section.get("journey", {})
+            departure_info = section.get("departure", {})
+            arrival_info = section.get("arrival", {})
+
+            journey_item = QStandardItem(
+                f"{journey.get('category', 'N/A')} {journey.get('number', 'N/A')} "
+                f"Direction: {journey.get('to', 'N/A')}"
+            )
+            departure_item = QStandardItem(
+                f"{departure_info.get('station_name', 'N/A')} "
+                f"{departure_info.get('departure', 'N/A').split(' ')[1] if 'departure' in departure_info else 'N/A'}"
+            )
+            arrival_item = QStandardItem(
+                f"{arrival_info.get('station_name', 'N/A')} "
+                f"{arrival_info.get('arrival', 'N/A').split(' ')[1] if 'arrival' in arrival_info else 'N/A'}"
+            )
+            to_item = QStandardItem(journey.get("to", "N/A"))
+
+            self.model.appendRow([journey_item, departure_item, arrival_item, to_item])
+
+        self.tree_view.setModel(self.model)
+        layout.addWidget(self.tree_view)
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.connections = None
         self.setWindowTitle("Transport Search")
+        self.setMinimumSize(QSize(700, 500))
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
+
+        self.connection_info = []
 
         layout = QVBoxLayout()
         self.central_widget.setLayout(layout)
 
-        form_layout = QHBoxLayout()
-        layout.addLayout(form_layout)
+        input_layout = QVBoxLayout()
+        layout.addLayout(input_layout)
 
-        from_label = QLabel("From:")
-        self.from_input = QLineEdit()
-        form_layout.addWidget(from_label)
-        form_layout.addWidget(self.from_input)
+        from_to_layout = QHBoxLayout()
+        input_layout.addLayout(from_to_layout)
+
+        departure_label = QLabel("From:")
+        from_to_layout.addWidget(departure_label)
+
+        self.departure_input = QLineEdit()
+        self.departure_input.textChanged.connect(self.check_input_fields)
+        from_to_layout.addWidget(self.departure_input)
 
         to_label = QLabel("To:")
-        self.to_input = QLineEdit()
-        form_layout.addWidget(to_label)
-        form_layout.addWidget(self.to_input)
+        from_to_layout.addWidget(to_label)
 
-        via_label = QLabel("Via:")
-        self.via_input = QLineEdit()
-        form_layout.addWidget(via_label)
-        form_layout.addWidget(self.via_input)
+        self.destination_input = QLineEdit()
+        self.destination_input.textChanged.connect(self.check_input_fields)
+        from_to_layout.addWidget(self.destination_input)
 
-        datetime_label = QLabel("Date and time (optional):")
-        self.datetime_input = QLineEdit()
-        form_layout.addWidget(datetime_label)
-        form_layout.addWidget(self.datetime_input)
+        date_time_layout = QHBoxLayout()
+        input_layout.addLayout(date_time_layout)
 
-        search_button = QPushButton("Search")
-        search_button.clicked.connect(self.search_connections)
-        layout.addWidget(search_button)
+        date_label = QLabel("Date:")
+        date_time_layout.addWidget(date_label)
 
-        self.result_text = QTextEdit()
-        layout.addWidget(self.result_text)
+        self.date_input = QDateEdit()
+        self.date_input.setCalendarPopup(True)
+        self.date_input.setDate(QDate.currentDate())
+        date_time_layout.addWidget(self.date_input)
 
-    def fetch(self, url, params=None):
-        response = requests.get(url, params=params)
-        if response.status_code != 200:
-            exit(f"Error from API: {response.status_code}")
-        return response.json()
+        time_label = QLabel("Time:")
+        date_time_layout.addWidget((time_label))
+
+        self.time_input = QTimeEdit()
+        self.time_input.setTime(QTime.currentTime())
+        date_time_layout.addWidget(self.time_input)
+
+        self.search_button = QPushButton("Search Connections")
+        self.search_button.clicked.connect(self.search_connections)
+        self.search_button.setEnabled(False)
+        input_layout.addWidget(self.search_button)
+
+        self.result_tree = QTreeView()
+        self.result_model = QStandardItemModel()
+        self.result_model.setHorizontalHeaderLabels(["Information", "Departure", "Arrival", "Duration", "Transfers"])
+        self.result_tree.setModel(self.result_model)
+        self.result_tree.clicked.connect(self.show_connection_info)
+        layout.addWidget(self.result_tree)
+
+        self.result_tree.setColumnWidth(0, 220)
+        self.result_tree.setColumnWidth(1, 120)
+        self.result_tree.setColumnWidth(2, 120)
+        self.result_tree.setColumnWidth(3, 80)
+        self.result_tree.setColumnWidth(4, 60)
+
+    def check_input_fields(self):
+        if self.departure_input.text().strip() and self.destination_input.text().strip():
+            self.search_button.setEnabled(True)
+        else:
+            self.search_button.setEnabled(False)
 
     def search_connections(self):
-        # @TODO: Search connection by using connections module
+        departure = self.departure_input.text().strip()
+        destination = self.destination_input.text().strip()
+        date = self.date_input.date().toString("yyyy-MM-dd")
+        time = self.time_input.time().toString("HH:mm")
+        if departure and destination:
+            con = Connections(departure, destination, date, time)
+            connections_info = con.connection_data_extraction()
+            self.connection_info = connections_info
+            self.result_model.removeRows(0, self.result_model.rowCount())
+            print(connections_info)
+            if connections_info:
+                for connection in connections_info:
+                    connection_item = QStandardItem(
+                        f"{connection['sections'][0]['journey']['category']}"
+                        f"{connection['sections'][0]['journey']['number']}"
+                        f" - Direction {connection['sections'][0]['journey']['to']}")
+                    self.result_model.appendRow(connection_item)
+                    self.result_model.setItem(connection_item.row(), 1,
+                                              QStandardItem(connection["sections"][0]["departure"]["departure"]))
+                    self.result_model.setItem(connection_item.row(), 2,
+                                              QStandardItem(connection["sections"][-1]["arrival"]["arrival"]))
+                    self.result_model.setItem(connection_item.row(), 3,
+                                              QStandardItem(connection["duration"]))
+                    self.result_model.setItem(connection_item.row(), 4, QStandardItem(str(connection["transfers"])))
+            else:
+                self.result_model.clear()
 
-        from_station = self.from_input.text()
-        to_station = self.to_input.text()
-        via_station = self.via_input.text()
-        date_time = self.datetime_input.text()
-
-        search = from_station and to_station
-        if search:
-            params = {
-                'from': from_station,
-                'to': to_station,
-                'limit': 6,
-            }
-
-            if date_time:
-                date_time_obj = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
-                params['date'] = date_time_obj.strftime('%Y-%m-%d')
-                params['time'] = date_time_obj.strftime('%H:%M')
-
-            if via_station:
-                params['via'] = via_station
-
-            response = self.fetch('https://transport.opendata.ch/v1/connections', params=params)
-
-            from_station = response.get('from', {}).get('name', '')
-            to_station = response.get('to', {}).get('name', '')
-
-            stations_from = []
-            stations_to = []
-
-            if 'stations' in response:
-                if response['stations'].get('from'):
-                    for station in response['stations']['from'][1:4]:
-                        if station.get('score') and station['score'] > 97:
-                            stations_from.append(station['name'])
-
-                if response['stations'].get('to'):
-                    for station in response['stations']['to'][1:4]:
-                        if station.get('score') and station['score'] > 97:
-                            stations_to.append(station['name'])
-
-            result = f'From: {from_station}\nTo: {to_station}\nStations from: {", ".join(stations_from)}\nStations to: {", ".join(stations_to)}'
-            self.result_text.setPlainText(result)
+    def show_connection_info(self, index: QModelIndex):
+        selected_row = index.row()
+        selected_connection = self.connection_info[selected_row]
+        info_window = ConnectionInfoWindow(selected_connection)
+        info_window.exec()
 
 
 if __name__ == "__main__":
     app = QApplication([])
+
+    app.setStyleSheet(qdarkstyle.load_stylesheet())
     window = MainWindow()
     window.show()
     app.exec()
