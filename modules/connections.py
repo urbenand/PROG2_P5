@@ -1,6 +1,7 @@
 import requests
 from datetime import datetime
 from helper import format_duration
+import pprint
 
 
 class Connections:
@@ -9,21 +10,19 @@ class Connections:
     """
 
     def __init__(self, departure, destination, date, time):
-        self.url = "https://transport.opendata.ch/v1/connections"  # Static URL
+        self.url = "http://transport.opendata.ch/v1/connections"  # Static URL
         self.departure = departure
         self.destination = destination
         self.date = date
         self.time = time
 
     def connection_data(self):
-        """
-        Fetches connection data from the API and returns the response as a JSON object.
-        """
+        # Fetches connection data from the API and returns the response as a JSON object.
         params = {
             "from": self.departure,
             "to": self.destination,
-            "date": self.date,
-            "time": self.time
+            "date": self.date if self.date else None,
+            "time": self.time if self.time else None
         }
 
         try:
@@ -51,16 +50,13 @@ class Connections:
             connection_info = {
                 'from': {
                     'id': connection['from']['station']['id'],
-                    'coordinate': connection['from']['station']['coordinate'],
                     'name': connection['from']['station']['name'],
                     'departure': departure_dt.strftime("%d.%m.%Y %H:%M"),
-                    'platform': connection['from']['platform'],
+                    'platform': connection['from']['platform']
                 },
                 'to': {
                     'id': connection['to']['station']['id'],
-                    'coordinate': connection['to']['station']['coordinate'],
                     'name': connection['to']['station']['name'],
-                    'delay': connection['to']['station']['delay'],
                     'arrival': arrival_dt.strftime("%d.%m.%Y %H:%M"),
                     'platform': connection['to']['platform']
                 },
@@ -83,25 +79,31 @@ class Connections:
                         'to': journey.get('to')
                     }
 
+                    if journey['passList']:
+                        from_station_info = journey['passList'][0]
+                        to_station_info = journey['passList'][-1]
+
+                        from_departure_dt = datetime.fromisoformat(
+                            from_station_info.get('departure')) if from_station_info.get('departure') else None
+                        to_arrival_dt = datetime.fromisoformat(to_station_info.get('arrival')) if to_station_info.get(
+                            'arrival') else None
+
+                        section_info['from'] = {
+                            'station_id': from_station_info['station']['id'],
+                            'station_name': from_station_info['station']['name'],
+                            'departure': from_departure_dt.strftime("%d.%m.%Y %H:%M") if from_departure_dt else None,
+                            'platform': from_station_info.get('platform')
+                        }
+
+                        section_info['to'] = {
+                            'station_id': to_station_info['station']['id'],
+                            'station_name': to_station_info['station']['name'],
+                            'arrival': to_arrival_dt.strftime("%d.%m.%Y %H:%M") if to_arrival_dt else None,
+                            'platform': to_station_info.get('platform')
+                        }
+
                 if section.get('walk'):
                     section_info['walk_duration'] = section['walk']['duration']
-
-                departure = section['departure']
-                sec_dep_dt = datetime.fromisoformat(departure["departure"])
-                section_info['departure'] = {
-                    'station_id': departure['station']['id'],
-                    'station_name': departure['station']['name'],
-                    'departure': sec_dep_dt.strftime("%d.%m.%Y %H:%M"),
-                }
-
-                if 'arrival' in section:
-                    arrival = section['arrival']
-                    sec_arr_dt = datetime.fromisoformat(arrival["arrival"])
-                    section_info['arrival'] = {
-                        'station_id': arrival['station']['id'],
-                        'station_name': arrival['station']['name'],
-                        'arrival': sec_arr_dt.strftime("%d.%m.%Y %H:%M"),
-                    }
 
                 connection_info['sections'].append(section_info)
 
@@ -109,60 +111,14 @@ class Connections:
 
         return connections_info
 
+
 def main():
-    departure = "Zürich"
-    destination = "Othmarsingen"
+    departure = "Othmarsingen"
+    destination = "Zürich"
     con = Connections(departure, destination, date="2024-05-19", time="10:00")
-    con_data = con.connection_data()
-    print(con_data)
     connections_info = con.connection_data_extraction()
+    pprint.pprint(connections_info)
 
-    if not connections_info:
-        print("No connections found.")
-        return None
-
-    for connection_info in connections_info:
-        print("From:")
-        print(f"  ID: {connection_info['from']['id']}")
-        print(f"  Name: {connection_info['from']['name']}")
-        print(f"  Departure: {connection_info['from']['departure']}")
-
-        print("\nTo:")
-        print(f"  ID: {connection_info['to']['id']}")
-        print(f"  Name: {connection_info['to']['name']}")
-        print(f"  Arrival: {connection_info['to']['arrival']}")
-        print(f"  Platform: {connection_info['to']['platform']}")
-
-        print(f"\nDuration: {connection_info['duration']}")
-        print(f"Transfers: {connection_info['transfers']}")
-        print(f"Products: {', '.join(connection_info['products'])}")
-
-        print("\nSections:")
-        for section in connection_info['sections']:
-            if 'journey' in section:
-                journey = section['journey']
-                print(f"  Journey:")
-                print(f"    Name: {journey['name']}")
-                print(f"    Category: {journey['category']}")
-                print(f"    Number: {journey['number']}")
-                print(f"    Operator: {journey['operator']}")
-                print(f"    To: {journey['to']}")
-
-            if 'walk_duration' in section:
-                print(f"  Walk Duration: {section['walk_duration']} seconds")
-
-            print("  Departure:")
-            departure = section['departure']
-            print(f"    Station ID: {departure['station_id']}")
-            print(f"    Station Name: {departure['station_name']}")
-            print(f"    Departure: {departure['departure']}")
-
-            if 'arrival' in section:
-                print("  Arrival:")
-                arrival = section['arrival']
-                print(f"    Station ID: {arrival['station_id']}")
-                print(f"    Station Name: {arrival['station_name']}")
-                print(f"    Arrival: {arrival['arrival']}")
 
 if __name__ == "__main__":
     main()
