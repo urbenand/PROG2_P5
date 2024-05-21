@@ -74,11 +74,11 @@ def get_web_link(country_name: str):
 
 def check_blacklist(city1: str, city2: str):
     """
-    checks if there has already been blacklist entry for a connection from city1 to city2 and
-    returns the dictionary of said connection including the coordinates of the cities.
+    checks if there has already been blacklist entry for a connection from city1 to city2 and returns the dictionary of
+    said connection including the coordinates of the cities (or False if no entry exists).
     :param city1: string of city name
     :param city2: string of city name
-    :return: dictionary of connection incl. coordinates of the cities
+    :return: dictionary of connection incl. coordinates of the cities or returns False if no blacklist entry exists
     """
     blacklist = Query()
     result = blacklist.search({blacklist.departure == city1} and blacklist.arrival == city2)
