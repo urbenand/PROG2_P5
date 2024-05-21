@@ -1,5 +1,5 @@
 from tinydb import TinyDB, Query
-from maybe_usefull_stuff import get_coordinates, get_country_name
+from helper import get_coordinates, get_country_name
 from modules.csv_reader import get_countries, get_base_cities
 import csv
 """

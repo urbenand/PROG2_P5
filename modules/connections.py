@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime
-from maybe_usefull_stuff import format_duration
+from helper import format_duration
 
 
 class Connections:
@@ -53,7 +53,6 @@ class Connections:
                     'id': connection['from']['station']['id'],
                     'coordinate': connection['from']['station']['coordinate'],
                     'name': connection['from']['station']['name'],
-                    'delay': connection['from']['station']['delay'],
                     'departure': departure_dt.strftime("%d.%m.%Y %H:%M"),
                     'platform': connection['from']['platform'],
                 },

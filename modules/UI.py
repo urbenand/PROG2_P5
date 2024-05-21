@@ -16,9 +16,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
 from connections import Connections
-from maybe_usefull_stuff import get_coordinates
 import qdarkstyle
-from map import Map
 
 
 class ConnectionInfoWindow(QDialog):
@@ -33,29 +31,49 @@ class ConnectionInfoWindow(QDialog):
         self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels(["Information", "Departure", "Arrival", "To"])
 
-        for section in connection_info.get("sections", []):
-            journey = section.get("journey", {})
-            departure_info = section.get("departure", {})
-            arrival_info = section.get("arrival", {})
+        sections = connection_info.get("sections", [])
 
-            if journey:
+        for i, section in enumerate(sections):
+            journey = section.get("journey", {})
+            departure_info = section.get("from", {})
+            arrival_info = section.get("to", {})
+
+            if 'walk_duration' in section:
+                walk_duration = section['walk_duration']
+                journey_item = QStandardItem(
+                    f"Walk Duration: {int(walk_duration / 60)} minutes"
+                )
+                departure_item = QStandardItem("-")
+                arrival_item = QStandardItem("-")
+
+                # Show the station_name of the next departure in the "To" column
+                if i + 1 < len(sections):
+                    next_section = sections[i + 1]
+                    next_departure_info = next_section.get("from", {})
+                    to_item = QStandardItem(next_departure_info.get('station_name', 'N/A'))
+                else:
+                    to_item = QStandardItem("N/A")
+            else:
                 journey_item = QStandardItem(
                     f"{journey.get('category', 'N/A')} {journey.get('number', 'N/A')}\n"
                     f"Direction: {journey.get('to', 'N/A')}"
                 )
-            else:
-                journey_item = QStandardItem(
-                    f"Walk Duration:\n{int(section.get('walk_duration') / 60)} minutes"
+                departure_platform = departure_info.get('platform')
+                arrival_platform = arrival_info.get('platform')
+                departure_platform_text = departure_platform if departure_platform is not None else "-"
+                arrival_platform_text = arrival_platform if arrival_platform is not None else "-"
+
+                departure_item = QStandardItem(
+                    f"{departure_info.get('station_name', 'N/A')}\n"
+                    f"{departure_info.get('departure', 'N/A').split(' ')[1] if 'departure' in departure_info else 'N/A'}\n"
+                    f"Platform: {departure_platform_text}"
                 )
-            departure_item = QStandardItem(
-                f"{departure_info.get('station_name', 'N/A')}\n"
-                f"{departure_info.get('departure', 'N/A').split(' ')[1] if 'departure' in departure_info else 'N/A'}"
-            )
-            arrival_item = QStandardItem(
-                f"{arrival_info.get('station_name', 'N/A')}\n"
-                f"{arrival_info.get('arrival', 'N/A').split(' ')[1] if 'arrival' in arrival_info else 'N/A'}"
-            )
-            to_item = QStandardItem(journey.get("to", "N/A"))
+                arrival_item = QStandardItem(
+                    f"{arrival_info.get('station_name', 'N/A')}\n"
+                    f"{arrival_info.get('arrival', 'N/A').split(' ')[1] if 'arrival' in arrival_info else 'N/A'}\n"
+                    f"Platform: {arrival_platform_text}"
+                )
+                to_item = QStandardItem(journey.get("to", "N/A"))
 
             self.model.appendRow([journey_item, departure_item, arrival_item, to_item])
 
@@ -78,6 +96,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.connection_info = []
+        self.status_text = ""
 
         layout = QVBoxLayout()
         self.central_widget.setLayout(layout)
@@ -133,10 +152,10 @@ class MainWindow(QMainWindow):
         self.result_tree.clicked.connect(self.show_connection_info)
         layout.addWidget(self.result_tree)
 
-        self.result_tree.setColumnWidth(0, 220)
+        self.result_tree.setColumnWidth(0, 250)
         self.result_tree.setColumnWidth(1, 120)
         self.result_tree.setColumnWidth(2, 120)
-        self.result_tree.setColumnWidth(3, 80)
+        self.result_tree.setColumnWidth(3, 100)
         self.result_tree.setColumnWidth(4, 60)
 
         status_label = QLabel("Status Information")
@@ -164,30 +183,39 @@ class MainWindow(QMainWindow):
         destination = self.destination_input.text().strip()
         date = self.date_input.date().toString("yyyy-MM-dd")
         time = self.time_input.time().toString("HH:mm")
+
         if departure and destination:
             self.map_button.setEnabled(True)
             con = Connections(departure, destination, date, time)
             connections_info = con.connection_data_extraction()
+            print(connections_info)
             self.connection_info = connections_info
             self.result_model.removeRows(0, self.result_model.rowCount())
-            print(connections_info)  # TODO: Delete line if not used anymore
+
             if connections_info:
+                self.status_text = "Connection found!"
+                self.update_status_info()
                 for connection in connections_info:
                     products = connection.get("products", [])
-                    products_numbers = ", ".join(products)
-                    connection_item = QStandardItem(
-                        f"{products_numbers}"
-                        f" - To {connection['to']['name']}")
-                    self.result_model.appendRow(connection_item)
-                    self.result_model.setItem(connection_item.row(), 1,
-                                              QStandardItem(connection["from"]["departure"]))
-                    self.result_model.setItem(connection_item.row(), 2,
-                                              QStandardItem(connection["to"]["arrival"]))
-                    self.result_model.setItem(connection_item.row(), 3,
-                                              QStandardItem(connection["duration"]))
-                    self.result_model.setItem(connection_item.row(), 4, QStandardItem(str(connection["transfers"])))
+                    products_text = ", ".join(products)
+                    to_name = connection["to"]["name"]
+                    from_departure = connection["from"]["departure"]
+                    to_arrival = connection["to"]["arrival"]
+                    duration = connection["duration"]
+                    transfers = str(connection["transfers"])
+
+                    connection_item = QStandardItem(f"{products_text}\nTo {to_name}")
+                    self.result_model.appendRow([
+                        connection_item,
+                        QStandardItem(from_departure),
+                        QStandardItem(to_arrival),
+                        QStandardItem(duration),
+                        QStandardItem(transfers)
+                    ])
             else:
                 self.result_model.clear()
+                self.status_text = "No Connection available"
+                self.update_status_info()
 
     def show_connection_info(self, index: QModelIndex):
         selected_row = index.row()
@@ -195,11 +223,12 @@ class MainWindow(QMainWindow):
         info_window = ConnectionInfoWindow(selected_connection)
         info_window.exec()
 
-    def update_status_info(self, status_text="BRB"):
-        self.status_info.setPlainText(status_text)
+    def update_status_info(self):
+        self.status_info.setPlainText(self.status_text)
 
     def get_map(self):
-        departure = self.departure_input.text().strip()
+        pass
+    """       departure = self.departure_input.text().strip()
         destination = self.destination_input.text().strip()
         cities = [departure, destination]
         cities_coordinates = []
@@ -207,7 +236,7 @@ class MainWindow(QMainWindow):
             lat, lon = get_coordinates(city)
             if lat and lon:
                 cities_coordinates.append({"lat": lat, "lon": lon})
-        Map(cities_coordinates)
+        Map(cities_coordinates)"""
 
 
 if __name__ == "__main__":

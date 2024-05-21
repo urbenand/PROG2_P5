@@ -1,5 +1,5 @@
 import requests
-from maybe_usefull_stuff import get_coordinates
+from helper import get_coordinates
 import csv
 
 """
