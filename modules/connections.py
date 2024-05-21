@@ -51,12 +51,17 @@ class Connections:
             connection_info = {
                 'from': {
                     'id': connection['from']['station']['id'],
+                    'coordinate': connection['from']['station']['coordinate'],
                     'name': connection['from']['station']['name'],
+                    'delay': connection['from']['station']['delay'],
                     'departure': departure_dt.strftime("%d.%m.%Y %H:%M"),
+                    'platform': connection['from']['platform'],
                 },
                 'to': {
                     'id': connection['to']['station']['id'],
+                    'coordinate': connection['to']['station']['coordinate'],
                     'name': connection['to']['station']['name'],
+                    'delay': connection['to']['station']['delay'],
                     'arrival': arrival_dt.strftime("%d.%m.%Y %H:%M"),
                     'platform': connection['to']['platform']
                 },
@@ -106,14 +111,16 @@ class Connections:
         return connections_info
 
 def main():
-    departure = input("Enter departure: ")
-    destination = input("Enter destination: ")
+    departure = "Zürich"
+    destination = "Othmarsingen"
     con = Connections(departure, destination, date="2024-05-19", time="10:00")
+    con_data = con.connection_data()
+    print(con_data)
     connections_info = con.connection_data_extraction()
 
     if not connections_info:
         print("No connections found.")
-        return
+        return None
 
     for connection_info in connections_info:
         print("From:")

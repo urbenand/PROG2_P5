@@ -170,7 +170,7 @@ class MainWindow(QMainWindow):
             connections_info = con.connection_data_extraction()
             self.connection_info = connections_info
             self.result_model.removeRows(0, self.result_model.rowCount())
-            print(connections_info)
+            print(connections_info)  # TODO: Delete line if not used anymore
             if connections_info:
                 for connection in connections_info:
                     products = connection.get("products", [])
