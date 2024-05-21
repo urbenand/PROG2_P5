@@ -15,9 +15,13 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtCore import QSize, QDate, QTime, QModelIndex, Qt
+from PySide6.QtWebEngineWidgets import QWebEngineView
 from connections import Connections
+from maybe_usefull_stuff import get_coordinates
+import os
 import qdarkstyle
-
+from map import Map
+import plotly.graph_objects as go
 
 class ConnectionInfoWindow(QDialog):
     def __init__(self, connection_info):
@@ -124,6 +128,7 @@ class MainWindow(QMainWindow):
         input_layout.addWidget(self.search_button)
 
         self.result_tree = QTreeView()
+        self.result_tree.setFixedHeight(250)
         self.result_model = QStandardItemModel()
         self.result_model.setHorizontalHeaderLabels(["Information", "Departure", "Arrival", "Duration", "Transfers"])
         self.result_tree.setModel(self.result_model)
@@ -141,27 +146,29 @@ class MainWindow(QMainWindow):
 
         self.status_info = QTextEdit()
         self.status_info.setReadOnly(True)
-        self.status_info.setFixedHeight(50)
+        self.status_info.setFixedHeight(80)
         layout.addWidget(self.status_info)
 
-        self.map_view = QLabel("MAP HERE")
-        self.map_view.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.map_view)
-
-        self.update_status_info()
+        self.map_button = QPushButton("View Map")
+        self.map_button.clicked.connect(self.get_map)
+        self.map_button.setEnabled(False)
+        input_layout.addWidget(self.map_button)
 
     def check_input_fields(self):
         if self.departure_input.text().strip() and self.destination_input.text().strip():
-            self.search_button.setEnabled(True)
+            self.search_button.setEnabled(True) and self.map_button.setEnabled(True)
         else:
-            self.search_button.setEnabled(False)
+            self.search_button.setEnabled(False) and self.map_button.setEnabled(False)
 
+
+    #Update destination logic if not reachable, update status info aswell
     def search_connections(self):
         departure = self.departure_input.text().strip()
         destination = self.destination_input.text().strip()
         date = self.date_input.date().toString("yyyy-MM-dd")
         time = self.time_input.time().toString("HH:mm")
         if departure and destination:
+            self.map_button.setEnabled(True)
             con = Connections(departure, destination, date, time)
             connections_info = con.connection_data_extraction()
             self.connection_info = connections_info
@@ -185,6 +192,7 @@ class MainWindow(QMainWindow):
             else:
                 self.result_model.clear()
 
+
     def show_connection_info(self, index: QModelIndex):
         selected_row = index.row()
         selected_connection = self.connection_info[selected_row]
@@ -194,6 +202,16 @@ class MainWindow(QMainWindow):
     def update_status_info(self, status_text="BRB"):
         self.status_info.setPlainText(status_text)
 
+    def get_map(self):
+        departure = self.departure_input.text().strip()
+        destination = self.destination_input.text().strip()
+        cities = [departure, destination]
+        cities_coordinates = []
+        for city in cities:
+            lat, lon = get_coordinates(city)
+            if lat and lon:
+                cities_coordinates.append({"lat": lat, "lon": lon})
+        Map(cities_coordinates)
 
 if __name__ == "__main__":
     app = QApplication([])
