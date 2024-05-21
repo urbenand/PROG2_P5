@@ -14,14 +14,12 @@ from PySide6.QtWidgets import (
     QTextEdit,
 )
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from PySide6.QtCore import QSize, QDate, QTime, QModelIndex, Qt
-from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
 from connections import Connections
 from maybe_usefull_stuff import get_coordinates
-import os
 import qdarkstyle
 from map import Map
-import plotly.graph_objects as go
+
 
 class ConnectionInfoWindow(QDialog):
     def __init__(self, connection_info):
@@ -160,8 +158,7 @@ class MainWindow(QMainWindow):
         else:
             self.search_button.setEnabled(False) and self.map_button.setEnabled(False)
 
-
-    #Update destination logic if not reachable, update status info aswell
+    # Update destination logic if not reachable, update status info aswell
     def search_connections(self):
         departure = self.departure_input.text().strip()
         destination = self.destination_input.text().strip()
@@ -192,7 +189,6 @@ class MainWindow(QMainWindow):
             else:
                 self.result_model.clear()
 
-
     def show_connection_info(self, index: QModelIndex):
         selected_row = index.row()
         selected_connection = self.connection_info[selected_row]
@@ -212,6 +208,7 @@ class MainWindow(QMainWindow):
             if lat and lon:
                 cities_coordinates.append({"lat": lat, "lon": lon})
         Map(cities_coordinates)
+
 
 if __name__ == "__main__":
     app = QApplication([])
