@@ -2,24 +2,19 @@ from tinydb import TinyDB, Query
 from helper import get_coordinates, get_country_name
 from modules.csv_reader import get_countries, get_base_cities
 import csv
+
 """
 TODO: 
-- Create a DB search to check if country name is in transport link table
-  if True return the transportlink of that city
-- implement a Blacklist for already checked connections and the required data
 - change DB in Class TransportDB and change functions into methods
-
-
 """
-
 
 db = TinyDB("TransportDB")
 cities = db.table("cities")
 countries = db.table("countries")
-# TODO: Table for machine Lerning
+blacklist = db.table("blacklist")
 
 
-def add_reacheble_cities(name, latitude, longitude, country):
+def add_reachable_cities(name, latitude, longitude, country):
     cities.insert({
         "name": name,
         "latitude": latitude,
@@ -36,8 +31,15 @@ def add_countries(german_name, name, main_city, web_link=None):
         "web_link": web_link
     })
 
-def add_Blacklist_entry():
-    pass
+
+def add_blacklist_entry(departure, arrival, departure_lon, departure_lat, arrival_lon, arrival_lat):
+    blacklist.insert({
+        "departure": departure,
+        "arrival": arrival,
+        "departure_cords": {"lon": departure_lon, "lat": departure_lat},
+        "arrival_cords": {"lon": arrival_lon, "lat": arrival_lat}
+    })
+
 
 def truncate_table(tablename):
     tablename.truncate()
@@ -48,7 +50,7 @@ def fill_cities():
     for city in base_cities:
         x, y = get_coordinates(city[0])
         country = get_country_name(x, y)
-        add_reacheble_cities(city[0], x, y, country)
+        add_reachable_cities(city[0], x, y, country)
 
 
 def fill_countries():
@@ -58,11 +60,33 @@ def fill_countries():
         name = get_country_name(x, y)
         add_countries(german_name, name, city, web_link)
 
-def get_web_link(city_name):
-    pass
 
-def check_blacklist(city1, city2):
-    pass
+def get_web_link(country_name: str):
+    """
+    retrieves weblink of param country_name (english name) from country database, returns string
+    :param country_name:
+    :return: string of weblink
+    """
+    country = Query()
+    result = country.search(country.name == country_name)
+    return result[0]["web_link"]
+
+
+def check_blacklist(city1: str, city2: str):
+    """
+    checks if there has already been blacklist entry for a connection from city1 to city2 and
+    returns the dictionary of said connection including the coordinates of the cities.
+    :param city1: string of city name
+    :param city2: string of city name
+    :return: dictionary of connection incl. coordinates of the cities
+    """
+    blacklist = Query()
+    result = blacklist.search({blacklist.departure == city1} and blacklist.arrival == city2)
+    if result:
+        return result
+    else:
+        return False
+
 
 def get_cities(city_name):
     city = Query()
