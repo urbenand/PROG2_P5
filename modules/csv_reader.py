@@ -4,7 +4,7 @@ import csv
 
 def get_base_cities():
     base_cities = []
-    with open("../src/cities.csv", "r", encoding="utf-8", ) as csvfile:
+    with open("../src/cities.csv", "r", encoding="utf-8") as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             base_cities.append(row)

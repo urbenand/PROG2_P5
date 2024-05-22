@@ -40,7 +40,7 @@ class Connections:
         data = self.connection_data()
         if not data:
             return None
-
+        pprint.pprint(data)
         connections_info = []
 
         for connection in data['connections']:

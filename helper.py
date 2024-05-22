@@ -43,7 +43,7 @@ def get_coordinates(city_name):
 
 def get_country_name(latitude, longitude):
     geolocator = Nominatim(user_agent="RudolfUrbenPelichet")
-    location = geolocator.reverse((latitude, longitude), exactly_one=True, encode="utf-8")
+    location = geolocator.reverse((latitude, longitude), exactly_one=True)
     if location:
         address = location.raw.get("address")
         if address:
@@ -60,7 +60,7 @@ def test_get_coordinates():
         print(f"Coordinates of {city_name}: Latitude={lat}, Longitude={lng}")
 
 
-def test_distance_coordianates():
+def test_distance_coordinates():
     city1 = "Zürich"
     city2 = "Barcelona"
     lat1, lng1 = get_coordinates(city1)
@@ -90,4 +90,4 @@ def format_duration(duration):
 if __name__ == "__main__":
     test_haversine()
     test_get_coordinates()
-    test_distance_coordianates()
+    test_distance_coordinates()
