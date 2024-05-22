@@ -1,3 +1,5 @@
+# modules/UI.py
+
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -228,6 +230,7 @@ class MainWindow(QMainWindow):
 
     def get_map(self):
         pass
+
     """       departure = self.departure_input.text().strip()
         destination = self.destination_input.text().strip()
         cities = [departure, destination]

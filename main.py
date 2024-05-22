@@ -17,11 +17,16 @@ modules_dir = os.path.join(current_dir, "modules")
 sys.path.append(modules_dir)
 
 
+class Application:
+    def __init__(self):
+        app = QApplication([])
+        main_window = MainWindow()
+        main_window.show()
+        app.exec()
+
+
 def main():
-    app = QApplication([])
-    main_window = MainWindow()
-    main_window.show()
-    app.exec()
+    Application()
 
 
 if __name__ == '__main__':

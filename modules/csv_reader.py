@@ -1,6 +1,20 @@
+# modules/csv_reader.py
+
 import csv
 
+
 # TODO: Change to CSV Reader Class, maybe merge the functions to one
+def read_csv(filename, header=True):
+    output = []
+    with open(f"../src/{filename}", "r", encoding="utf-8") as csvfile:
+        reader = csv.reader(csvfile)
+        if header:
+            next(reader, None)
+
+        for row in reader:
+            output.append(row)
+    return output
+
 
 def get_base_cities():
     base_cities = []
@@ -19,6 +33,3 @@ def get_countries():
         for row in reader:
             country_list.append(row)
     return country_list
-
-
-

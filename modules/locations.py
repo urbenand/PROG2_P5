@@ -1,3 +1,5 @@
+# modules/locations.py
+
 import requests
 from helper import get_coordinates
 import csv

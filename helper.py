@@ -1,3 +1,5 @@
+# modules/helper.py
+
 import math
 from geopy.geocoders import Nominatim
 import re
@@ -85,6 +87,29 @@ def format_duration(duration):
         formatted_duration = f"{total_minutes // 60} Hours {total_minutes % 60} min."
 
     return formatted_duration
+
+
+# Funktion zur Berechnung der neuen Punkte im 10° Winkel nördlich und südlich der Linie A-B
+def calculate_triangle_points(lat1, lon1, lat2, lon2, angle_deg):
+    angle_rad = math.radians(angle_deg)
+    delta_lon = lon2 - lon1
+    delta_lat = lat2 - lat1
+    distance = math.sqrt(delta_lat ** 2 + delta_lon ** 2)
+
+    # Winkel der Linie A-B
+    angle_AB = math.atan2(delta_lat, delta_lon)
+
+    # Berechnung der nördlichen Koordinate
+    angle_N = angle_AB + angle_rad
+    lat_N = lat1 + distance * math.sin(angle_N)
+    lon_N = lon1 + distance * math.cos(angle_N)
+
+    # Berechnung der südlichen Koordinate
+    angle_S = angle_AB - angle_rad
+    lat_S = lat1 + distance * math.sin(angle_S)
+    lon_S = lon1 + distance * math.cos(angle_S)
+
+    return (lat_N, lon_N), (lat_S, lon_S)
 
 
 if __name__ == "__main__":
