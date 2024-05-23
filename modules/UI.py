@@ -19,7 +19,7 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
 from transportDB import TransportDB
 from connections import Connections
-from helper import get_coordinates
+from helper import get_coordinates, get_country_name
 from map import Map
 import qdarkstyle
 
@@ -103,6 +103,7 @@ class MainWindow(QMainWindow):
         self.connection_info = []
         self.departure = ""
         self.destination = ""
+        self.country = ""
         self.status_text = ""
         self.db = TransportDB()
 
@@ -253,7 +254,7 @@ class MainWindow(QMainWindow):
             print(self.destination)
             lat_dep, lon_dep = get_coordinates(self.departure)
             lat_des, lon_des = get_coordinates(self.destination)
-
+            self.country = get_country_name(lat_des, lon_des)
             cities.append((float(lat_dep), float(lon_dep)))
             cities.append((float(lat_des), float(lon_des)))
             return cities
@@ -262,13 +263,23 @@ class MainWindow(QMainWindow):
         cities = self.extract_coordinates()
         cone_map = Map(cities)
         reachable = cone_map.reacheables
+
+        closest_city = cone_map.get_closest_city()
+        print(closest_city)
         if reachable:
             info_text = "Reachable Locations are:\n"
             for location in reachable:
-                info_text += f"{str(location['name'])}\n"
+                if location['name'] == closest_city[1]:
+                    info_text += f"Closest: {str(location['name'])}\n"
+                else:
+                    info_text += f"{str(location['name'])}\n"
         else:
             info_text = ("Apologizes!\n"
                          "No reachable Connections found!")
+        web_site = self.db.get_web_link(self.country)
+        if web_site:
+            info_text += (f"Further Connection can be looked up at:\n"
+                          f"{web_site}")
         self.status_text = info_text
         self.update_status_info()
 
