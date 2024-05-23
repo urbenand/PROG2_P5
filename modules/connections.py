@@ -12,7 +12,7 @@ class Connections:
     Class to check the connection and format the response from transport.opendata.ch
     """
 
-    def __init__(self, departure, destination, date, time):
+    def __init__(self, departure, destination, date=None, time=None):
         self.url = "http://transport.opendata.ch/v1/connections"  # Static URL
         self.departure = departure
         self.destination = destination
@@ -42,6 +42,13 @@ class Connections:
         self.departure = dep_check.check_locations()
         des_check = Locations(self.destination)
         self.destination = des_check.check_locations()
+
+    def check_reachability(self):
+        if self.connection_data_extraction():
+            return True
+        else:
+            return False
+
 
     def connection_data_extraction(self):
         """
@@ -125,8 +132,9 @@ class Connections:
 
 def main():
     departure = "Othmarsingen"
-    destination = "Berlin"
+    destination = "Moskau"
     con = Connections(departure, destination, date="2024-05-19", time="10:00")
+    print(con.check_reachability())
     connections_info = con.connection_data_extraction()
     pprint.pprint(connections_info)
 

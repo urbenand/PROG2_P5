@@ -1,7 +1,7 @@
 from tinydb import TinyDB, Query
 from helper import get_coordinates, get_country_name
 from modules.csv_reader import get_countries, get_base_cities
-
+from connections import Connections
 
 class TransportDB:
     def __init__(self, db_path="TransportDB.json"):
@@ -10,12 +10,13 @@ class TransportDB:
         self.countries = self.db.table("countries")
         self.blacklist = self.db.table("blacklist")
 
-    def add_reachable_cities(self, name, latitude, longitude, country):
+    def add_reachable_cities(self, name, latitude, longitude, country, reachable):
         self.cities.insert({
             "name": name,
             "latitude": latitude,
             "longitude": longitude,
-            "country": country
+            "country": country,
+            "reachable": reachable
         })
 
     def add_countries(self, german_name, name, main_city, web_link=None):
@@ -43,7 +44,12 @@ class TransportDB:
         for city in base_cities:
             x, y = get_coordinates(city[0])
             country = get_country_name(x, y)
-            self.add_reachable_cities(city[0], x, y, country)
+            connection = Connections("Aarau", str(city[0]))
+            if connection.check_reachability():
+                reachable = "True"
+            else:
+                reachable = "False"
+            self.add_reachable_cities(city[0], x, y, country, reachable)
 
     def fill_countries(self):
         countries_csv = get_countries()
@@ -86,6 +92,8 @@ class TransportDB:
 
 def main():
     db = TransportDB()
+    db.truncate_table("cities")
+    db.main_fill()
     print(db.get_web_link("Schweiz"))
     db.show_table("cities")
     db.show_table("countries")
