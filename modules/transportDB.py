@@ -74,20 +74,21 @@ class TransportDB:
         result = self.blacklist.search((Blacklist.departure == city1) & (Blacklist.arrival == city2))
         return result[0] if result else False
 
-    def get_cities(self, city_name):
-        City = Query()
-        return self.cities.search(City.name == city_name)
+    def show_table(self, table_name):
+        table = getattr(self, table_name)
+        for item in table.all():
+            print(item)
 
     def main_fill(self):
-        self.truncate_table("cities")
         self.fill_cities()
         self.fill_countries()
 
 
 def main():
     db = TransportDB()
-    db.main_fill()
     print(db.get_web_link("Schweiz"))
+    db.show_table("cities")
+    db.show_table("countries")
 
 
 if __name__ == "__main__":
