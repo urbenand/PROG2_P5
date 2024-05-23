@@ -188,45 +188,56 @@ class MainWindow(QMainWindow):
 
     # Update destination logic if not reachable, update status info aswell
     def search_connections(self):
+        db = TransportDB()
         self.departure = self.departure_input.text().strip()
         self.destination = self.destination_input.text().strip()
         date = self.date_input.date().toString("yyyy-MM-dd")
         time = self.time_input.time().toString("HH:mm")
 
         if self.departure and self.destination:
-            # TODO: Blacklist abfrage
-            self.map_button.setEnabled(True)
-            con = Connections(self.departure, self.destination, date, time)
-            connections_info = con.connection_data_extraction()
-            self.connection_info = connections_info
-            self.result_model.removeRows(0, self.result_model.rowCount())
+            # Check blacklist before initiating a web query
+            blacklist_entry = db.check_blacklist(self.departure, self.destination)
 
-            if connections_info:
-                self.status_text = "Connection found!"
-                self.update_status_info()
-                for connection in connections_info:
-                    products = connection.get("products", [])
-                    products_text = ", ".join(products)
-                    to_name = connection["to"]["name"]
-                    from_departure = connection["from"]["departure"]
-                    to_arrival = connection["to"]["arrival"]
-                    duration = connection["duration"]
-                    transfers = str(connection["transfers"])
-
-                    connection_item = QStandardItem(f"{products_text}\nTo {to_name}")
-                    self.result_model.appendRow([
-                        connection_item,
-                        QStandardItem(from_departure),
-                        QStandardItem(to_arrival),
-                        QStandardItem(duration),
-                        QStandardItem(transfers)
-                    ])
-            else:
-                # TODO: Blacklist entry self.country, self.destination, self.deparutre,
+            if not blacklist_entry:
+                self.map_button.setEnabled(True)
+                con = Connections(self.departure, self.destination, date, time)
+                connections_info = con.connection_data_extraction()
+                self.connection_info = connections_info
                 self.result_model.removeRows(0, self.result_model.rowCount())
-                self.status_text = ("No direct Connection available\n"
-                                    "Press 'View Map' for further Information")
-                self.update_status_info()
+
+                if connections_info:
+                    self.status_text = "Connection found!"
+                    self.update_status_info()
+                    for connection in connections_info:
+                        products = connection.get("products", [])
+                        products_text = ", ".join(products)
+                        to_name = connection["to"]["name"]
+                        from_departure = connection["from"]["departure"]
+                        to_arrival = connection["to"]["arrival"]
+                        duration = connection["duration"]
+                        transfers = str(connection["transfers"])
+
+                        connection_item = QStandardItem(f"{products_text}\nTo {to_name}")
+                        self.result_model.appendRow([
+                            connection_item,
+                            QStandardItem(from_departure),
+                            QStandardItem(to_arrival),
+                            QStandardItem(duration),
+                            QStandardItem(transfers)
+                        ])
+                else:
+                    # Extract coordinates
+                    cities = self.extract_coordinates()
+
+                    # Write connection with all necessary data into blacklist
+                    db.add_blacklist_entry(self.departure, self.destination, cities[0][1], cities[0][0], cities[1][1], cities[1][0], self.country, db.get_web_link(self.country))
+                    self.result_model.removeRows(0, self.result_model.rowCount())
+                    self.status_text = ("No direct Connection available\n"
+                                        "Press 'View Map' for further Information")
+                    self.update_status_info()
+
+            else:
+                print(f"Blacklist entry: \n{blacklist_entry}")
 
     def show_connection_info(self, index: QModelIndex):
         selected_row = index.row()

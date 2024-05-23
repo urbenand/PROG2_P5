@@ -143,7 +143,7 @@ class Map:
 
 def main():
     cities = []
-    city = ["Zürich", "Berlin"]
+    city = ["Bern", "München"]
 
     for cit in city:
         lat, lon = get_coordinates(cit)

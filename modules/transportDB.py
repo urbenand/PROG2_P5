@@ -10,6 +10,8 @@ class TransportDB:
         self.countries = self.db.table("countries")
         self.blacklist = self.db.table("blacklist")
 
+        # departure, destination, closest_city, weblink
+
     def add_reachable_cities(self, name, latitude, longitude, country, reachable):
         self.cities.insert({
             "name": name,
@@ -27,12 +29,14 @@ class TransportDB:
             "web_link": web_link
         })
 
-    def add_blacklist_entry(self, departure, arrival, departure_lon, departure_lat, arrival_lon, arrival_lat):
+    def add_blacklist_entry(self, departure, destination, departure_lon, departure_lat, destination_lon, destination_lat, country, weblink):
         self.blacklist.insert({
             "departure": departure,
-            "arrival": arrival,
+            "destination": destination,
             "departure_cords": {"lon": departure_lon, "lat": departure_lat},
-            "arrival_cords": {"lon": arrival_lon, "lat": arrival_lat}
+            "destination_cords": {"lon": destination_lon, "lat": destination_lat},
+            "country": country,
+            "weblink": weblink
         })
 
     def truncate_table(self, table_name):
@@ -74,11 +78,11 @@ class TransportDB:
         checks if there has already been a blacklist entry for a connection from city1 to city2 and returns the dictionary of
         said connection including the coordinates of the cities (or False if no entry exists).
         :param city1: name of the departure city
-        :param city2: name of the arrival city
+        :param city2: name of the destination city
         :return: dictionary of connection incl. coordinates of the cities or returns False if no blacklist entry exists
         """
         Blacklist = Query()
-        result = self.blacklist.search((Blacklist.departure == city1) & (Blacklist.arrival == city2))
+        result = self.blacklist.search((Blacklist.departure == city1) & (Blacklist.destination == city2))
         return result[0] if result else False
 
     def show_table(self, table_name):
@@ -93,11 +97,12 @@ class TransportDB:
 
 def main():
     db = TransportDB()
-    db.truncate_table("cities")
-    db.main_fill()
-    print(db.get_web_link("Schweiz"))
-    db.show_table("cities")
-    db.show_table("countries")
+    # db.truncate_table("cities")
+    # db.main_fill()
+    # print(db.get_web_link("Schweiz"))
+    # db.show_table("cities")
+    # db.show_table("countries")
+    db.show_table("blacklist")
 
 
 if __name__ == "__main__":
