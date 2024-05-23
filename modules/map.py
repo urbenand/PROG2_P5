@@ -3,7 +3,7 @@
 import plotly.graph_objects as go
 import math
 from shapely import Point, Polygon
-from helper import get_coordinates
+from helper import get_coordinates, haversine
 from modules.transportDB import TransportDB
 
 
@@ -35,20 +35,21 @@ def calculate_triangle_points(lat_a, lon_a, lat_b, lon_b, angle_deg):
 
 class Map:
     def __init__(self, cities):
-        cs_dept = cities[0]
-        cs_dest = cities[1]
+        self.cs_dept = cities[0]
+        self.cs_dest = cities[1]
         self.cities = TransportDB().cities
 
         # Calculate triangle points
-        cs_a, cs_b = calculate_triangle_points(cs_dept[0], cs_dept[1], cs_dest[0], cs_dest[1], 10)
+        self.cs_a, self.cs_b = calculate_triangle_points(self.cs_dept[0], self.cs_dept[1], self.cs_dest[0],
+                                                         self.cs_dest[1], 10)
 
         # Create map
         fig = go.Figure()
 
         # Add triangles for cone
         fig.add_trace(go.Scattermapbox(
-            lat=[cs_dept[0], cs_a[0], cs_dest[0], cs_dept[0]],
-            lon=[cs_dept[1], cs_a[1], cs_dest[1], cs_dept[1]],
+            lat=[self.cs_dept[0], self.cs_a[0], self.cs_dest[0], self.cs_dept[0]],
+            lon=[self.cs_dept[1], self.cs_a[1], self.cs_dest[1], self.cs_dept[1]],
             mode='lines+markers',
             fill='toself',
             fillcolor='rgba(0, 0, 0, 0.5)',
@@ -56,8 +57,8 @@ class Map:
         ))
 
         fig.add_trace(go.Scattermapbox(
-            lat=[cs_dept[0], cs_b[0], cs_dest[0], cs_dept[0]],
-            lon=[cs_dept[1], cs_b[1], cs_dest[1], cs_dept[1]],
+            lat=[self.cs_dept[0], self.cs_b[0], self.cs_dest[0], self.cs_dept[0]],
+            lon=[self.cs_dept[1], self.cs_b[1], self.cs_dest[1], self.cs_dept[1]],
             mode='lines+markers',
             fill='toself',
             fillcolor='rgba(0, 0, 0, 0.5)',
@@ -66,8 +67,8 @@ class Map:
 
         # Add departure and destination coordinates as a trace
         fig.add_trace(go.Scattermapbox(
-            lon=[cs_dept[0], cs_dest[0]],
-            lat=[cs_dept[1], cs_dest[1]],
+            lon=[self.cs_dept[0], self.cs_dest[0]],
+            lat=[self.cs_dept[1], self.cs_dest[1]],
             mode='markers+lines',
             marker=dict(size=20, color=['blue', 'red']),
         ))
@@ -77,46 +78,63 @@ class Map:
             margin={'l': 0, 't': 0, 'b': 0, 'r': 0},
             mapbox=dict(
                 style='open-street-map',
-                center=dict(lat=(cs_dept[0] + cs_dest[0]) / 2, lon=(cs_dept[1] + cs_dest[1]) / 2),
+                center=dict(lat=(self.cs_dept[0] + self.cs_dest[0]) / 2, lon=(self.cs_dept[1] + self.cs_dest[1]) / 2),
                 zoom=6
             ),
+            showlegend=False
         )
 
+        # Reachable
+        self.reacheables = []
+
+        # Check if key cities are within the 20° cone between A and B
         for city in self.cities:
             # Check if cities are within the edges of the polygon
-            name = self.check_cities_in_polygon([cs_dept, cs_a, cs_b], city)
+            data = self.check_cities_in_polygon([self.cs_dept, self.cs_a, self.cs_b], city)
+            if data:
+                self.reacheables.append(data)
 
-            if name:
-                print(name)
-                fig.add_trace(go.Scattermapbox(
-                    lat=[city["latitude"]],
-                    lon=[city["longitude"]],
-                    mode='markers',
-                    fill='toself',
-                    fillcolor='rgba(255, 128, 255, 0.5)',
-                    marker=dict(size=15, color=['blue', 'red']),
-                ))
+        # mark reachable cities
+        for data in self.reacheables:
+            fig.add_trace(go.Scattermapbox(
+                lat=[data["latitude"]],
+                lon=[data["longitude"]],
+                mode='markers',
+                fill='toself',
+                fillcolor='rgba(255, 128, 255, 0.5)',
+                marker=dict(size=15, color=['blue', 'red']),
+            ))
+
+        # mark closest city
+        self.get_closest_city()
 
         fig.show()
 
+    # Check polygon function
     def check_cities_in_polygon(self, edges, city):
         # Create polygon / triangle out of edge-coordinates
         triangle = Polygon(edges)
 
         # Check if given city is within this polygon / triangle
         if triangle.contains(Point(city["latitude"], city["longitude"])):
-            return city["name"]
+            return city
+
+    def get_closest_city(self):
+        distances = []
+
+        for cities in self.reacheables:
+            distance = haversine(self.cs_dest[0], self.cs_dest[1], cities["latitude"], cities["longitude"])
+            print(distance)
 
 
 def main():
     cities = []
-    city = ["Genf", "Berlin Hbf"]
+    city = ["Genf", "München"]
 
     for cit in city:
         lat, lon = get_coordinates(cit)
         cities.append((float(lat), float(lon)))
 
-    print(cities)
     Map(cities)
 
 
