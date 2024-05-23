@@ -1,4 +1,4 @@
-# modules/UI.py
+# modules/ui.py
 
 from PySide6.QtWidgets import (
     QApplication,
@@ -20,7 +20,7 @@ from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
 from modules.transportDB import TransportDB
 from modules.connections import Connections
 from helper import get_coordinates, get_country_name, haversine, percent_calculator
-from map import Map
+from modules.map import Map
 import qdarkstyle
 
 
@@ -229,7 +229,9 @@ class MainWindow(QMainWindow):
                     cities = self.extract_coordinates()
 
                     # Write connection with all necessary data into blacklist
-                    self.db.add_blacklist_entry(self.departure, self.destination, cities[0][1], cities[0][0], cities[1][1], cities[1][0], self.country, self.db.get_web_link(self.country))
+                    self.db.add_blacklist_entry(self.departure, self.destination, cities[0][1], cities[0][0],
+                                                cities[1][1], cities[1][0], self.country,
+                                                self.db.get_web_link(self.country))
                     self.result_model.removeRows(0, self.result_model.rowCount())
                     self.status_text = ("No direct Connection available\n"
                                         "Press 'View Map' for further Information")
@@ -305,10 +307,14 @@ class MainWindow(QMainWindow):
         self.update_status_info()
 
 
-if __name__ == "__main__":
+def main():
     app = QApplication([])
 
     app.setStyleSheet(qdarkstyle.load_stylesheet())
     window = MainWindow()
     window.show()
     app.exec()
+
+
+if __name__ == "__main__":
+    main()
