@@ -1,21 +1,18 @@
-# modules/locations.py
-
 import requests
-from helper import get_coordinates
-import csv
+from translate import Translator
+from langdetect import detect
+from collections import Counter
+import re
 
 """
 Class to get information about the provided location and stations
-and returning the data as json or as a list of all station in the chosen location
-
-TODO: implementing a method to extract location + coordinates 
-Drop this if not needed!!
+and retruning the data as json or as a list of all station in the chosen location
 """
 
 
 class Locations:
     def __init__(self, location=None, lat=None, lng=None):
-        self.url = "https://transport.opendata.ch/v1/locations"  # TODO: make the url a static variable
+        self.url = "http://transport.opendata.ch/v1/locations"
         self.location = location
         self.lat = lat
         self.lng = lng
@@ -38,46 +35,50 @@ class Locations:
             print(f"Error retrieving location data: {e}")
             return None
 
+    def check_german(self):
+        check_list = []
+        for station in self.stations:
+            check_list.append(detect(station))
+        counter = Counter(check_list)
+        most_language, _ = counter.most_common(1)[0]
+        return most_language
+
+    def split_station_names(self, text):
+        # Regex pattern to split by space, slash, and any other desired delimiters
+        pattern = r'[\/-]'  # Hier kannst du weitere Trennzeichen hinzufügen, falls nötig
+        return re.split(pattern, text)
+
+    def check_locations(self):
+        self.get_station_names(self.query_location_data())
+        language_name = self.check_german()
+        translator = Translator(from_lang="de", to_lang=language_name)
+        check_location = translator.translate(self.location)
+        for station in self.stations:
+            station_separated_special = self.split_station_names(station)
+            station_separated = station.split()
+            if station_separated[0].lower() == check_location.lower():
+                return station
+            else:
+                if station_separated_special[0].lower() or station_separated_special[
+                    1].lower() == check_location.lower():
+                    return station
+        return None
+
     def get_station_names(self, loc_data):
-        # extract all the station names of the chosen location
+        # Extract all the station names from the given JSON data and add them to self.stations
         for station in loc_data.get("stations", []):
             self.stations.append(station["name"])
-
-    def print_names(self):
-        # Printing out all the stations
-        for name in self.stations:
-            print(name)
-
-    def choose_station(self):
-        # Function to choose a station (probably don't need this)
-        for i, station in enumerate(self.stations, start=1):
-            print(f"{i} - {station}")
-
-        while True:
-            try:
-                choice = int(input("Enter Station Number: "))
-                if 1 <= choice <= len(self.stations):
-                    return self.stations[choice - 1]
-                else:
-                    print("Invalid Number. Please choose valid station: ")
-            except ValueError:
-                print("Invalid input. Please enter a number")
 
 
 def main():
     location = input("Enter Location: ")
-    lat, lng = get_coordinates(location)
-    print(f"{location}: latitude: {lat} Longitude: {lng}")
-    loc = Locations(location, lat, lng)
+    loc = Locations(location)
     loc_data = loc.query_location_data()
     print(loc_data)
-    if loc_data:
-        loc.get_station_names(loc_data)
-        print("Stations in", location + ":")
-        loc.print_names()
-    else:
-        print("Failed to retrieve location data.")
-    loc.choose_station()
+    loc.get_station_names(loc_data)
+    print(loc.check_locations())
+    print(loc.check_german())
+    print(loc.stations)
 
 
 if __name__ == "__main__":

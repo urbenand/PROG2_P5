@@ -15,6 +15,8 @@ Datenbearbeitung:
 geopy       # Koordinaten Verarbeiten
 math        # berechnung von Haversine Formel
 re          # extraktionen von daten aus Strings
+translate   # Übersetzung, falls Ortschaft in einer anderen Sprache
+langdetect  # Erkennen der Sprache
 
 Optionale Module:
 pprint      # einfacher um output zu kontrollieren (stellt json dateien als baum dar)
