@@ -17,8 +17,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
-from transportDB import TransportDB
-from connections import Connections
+from modules.transportDB import TransportDB
+from modules.connections import Connections
 from helper import get_coordinates, get_country_name, haversine, percent_calculator
 from map import Map
 import qdarkstyle
@@ -229,14 +229,14 @@ class MainWindow(QMainWindow):
                     cities = self.extract_coordinates()
 
                     # Write connection with all necessary data into blacklist
-                    self.db.add_blacklist_entry(self.departure, self.destination, cities[0][1], cities[0][0], cities[1][1], cities[1][0], self.country, db.get_web_link(self.country))
+                    self.db.add_blacklist_entry(self.departure, self.destination, cities[0][1], cities[0][0], cities[1][1], cities[1][0], self.country, self.db.get_web_link(self.country))
                     self.result_model.removeRows(0, self.result_model.rowCount())
                     self.status_text = ("No direct Connection available\n"
                                         "Press 'View Map' for further Information")
                     self.update_status_info()
 
             else:
-                self.status_text = blacklist_entry["info_text"]
+                self.status_text = blacklist_entry["text"]
                 self.update_status_info()
 
     def show_connection_info(self, index: QModelIndex):
@@ -278,9 +278,8 @@ class MainWindow(QMainWindow):
         cone_map = Map(cities)
         reachable = cone_map.reacheables
 
-        closest_city = cone_map.get_closest_city()
-        print(closest_city)
         if reachable:
+            closest_city = cone_map.get_closest_city()
             closest_city_name = closest_city[1]
             lon, lat = get_coordinates(closest_city_name)
             missing_distance = int(closest_city[0])
