@@ -12,7 +12,7 @@ and retruning the data as json or as a list of all station in the chosen locatio
 
 class Locations:
     def __init__(self, location=None, lat=None, lng=None):
-        self.url = "http://transport.opendata.ch/v1/locations"  # TODO: make the url a static variable
+        self.url = "http://transport.opendata.ch/v1/locations"
         self.location = location
         self.lat = lat
         self.lng = lng
@@ -38,31 +38,13 @@ class Locations:
     def check_language(self):
         check_list = []
         for station in self.stations:
-            if station:  # Sicherstellen, dass station nicht None oder leer ist
-                try:
-                    detected_language = detect(station)
-                    check_list.append(detected_language)
-                except Exception as e:
-                    print(f"Fehler bei der Spracherkennung für '{station}': {e}")
-                    check_list.append(None)  # oder andere geeignete Fehlerbehandlung
-            else:
-                check_list.append(None)  # Falls station leer ist, füge None hinzu
-
-        # Filtere None-Werte heraus, bevor du den Counter verwendest
-        filtered_check_list = [lang for lang in check_list if lang is not None]
-
-        if filtered_check_list:  # Überprüfen, ob die Liste nicht leer ist
-            counter = Counter(filtered_check_list)
-            most_language, _ = counter.most_common(1)[0]
-            return most_language
-        else:
-            return "de"
+            check_list.append(detect(station))
+        counter = Counter(check_list)
+        most_language, _ = counter.most_common(1)[0]
+        return most_language
 
     def split_words(self, text):
-        if not isinstance(text, str) or not text.strip():
-            return ""
-        # Regex pattern to split by space, slash, and any other desired delimiters
-        pattern = r'[\/-]'  # Hier kannst du weitere Trennzeichen hinzufügen, falls nötig
+        pattern = r' [\/-]'
         return re.split(pattern, text)
 
     def check_locations(self):
@@ -71,16 +53,9 @@ class Locations:
         translator = Translator(from_lang="de", to_lang=language_name)
         check_location = translator.translate(self.location)
         for station in self.stations:
-            if station:
-                station_separated_special = self.split_words(station)
-                station_separated = station.split()
-                if station_separated[0].lower() == check_location.lower():
-                    return station
-                else:
-                    if station_separated_special[0].lower() or station_separated_special[1].lower() == check_location.lower():
-                        return station
-            else:
-                return None
+            station_separated_special = self.split_words(station)
+            if station_separated_special[0].lower() == check_location.lower():
+                return station
         return None
 
     def get_station_names(self, loc_data):
@@ -97,7 +72,6 @@ def main():
     loc.get_station_names(loc_data)
     print(loc.check_locations())
     print(loc.check_language())
-    print(loc.stations)
 
 
 if __name__ == "__main__":

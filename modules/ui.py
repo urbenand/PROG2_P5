@@ -250,8 +250,6 @@ class MainWindow(QMainWindow):
     def update_status_info(self):
         self.status_info.setPlainText(self.status_text)
 
-    def Blacklist_entry_text(self):
-        pass
 
     def extract_coordinates(self):
         cities = []
