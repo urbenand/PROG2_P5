@@ -17,6 +17,7 @@ math        # berechnung von Haversine Formel
 re          # extraktionen von daten aus Strings
 translate   # Übersetzung, falls Ortschaft in einer anderen Sprache
 langdetect  # Erkennen der Sprache
+shapely     # Überprüfen, ob definierte Ortschaften innerhalb 20° Radius der Zielstrecke sind
 
 Optionale Module:
 pprint      # einfacher um output zu kontrollieren (stellt json dateien als baum dar)
