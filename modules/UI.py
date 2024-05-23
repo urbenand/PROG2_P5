@@ -188,7 +188,7 @@ class MainWindow(QMainWindow):
 
     # Update destination logic if not reachable, update status info aswell
     def search_connections(self):
-        db = TransportDB()
+
         self.departure = self.departure_input.text().strip()
         self.destination = self.destination_input.text().strip()
         date = self.date_input.date().toString("yyyy-MM-dd")
@@ -196,7 +196,7 @@ class MainWindow(QMainWindow):
 
         if self.departure and self.destination:
             # Check blacklist before initiating a web query
-            blacklist_entry = db.check_blacklist(self.departure, self.destination)
+            blacklist_entry = self.db.check_blacklist(self.departure, self.destination)
 
             if not blacklist_entry:
                 self.map_button.setEnabled(True)
@@ -230,14 +230,15 @@ class MainWindow(QMainWindow):
                     cities = self.extract_coordinates()
 
                     # Write connection with all necessary data into blacklist
-                    db.add_blacklist_entry(self.departure, self.destination, cities[0][1], cities[0][0], cities[1][1], cities[1][0], self.country, db.get_web_link(self.country))
+                    self.db.add_blacklist_entry(self.departure, self.destination, cities[0][1], cities[0][0], cities[1][1], cities[1][0], self.country, db.get_web_link(self.country))
                     self.result_model.removeRows(0, self.result_model.rowCount())
                     self.status_text = ("No direct Connection available\n"
                                         "Press 'View Map' for further Information")
                     self.update_status_info()
 
             else:
-                print(f"Blacklist entry: \n{blacklist_entry}")
+                self.status_text = blacklist_entry["info_text"]
+                self.update_status_info()
 
     def show_connection_info(self, index: QModelIndex):
         selected_row = index.row()
@@ -301,6 +302,7 @@ class MainWindow(QMainWindow):
                           f"Check Connection from {closest_city[1]} to {self.destination} at:\n"
                           f"{web_site}")
         self.status_text = info_text
+        self.db.update_blacklist(self.departure, self.destination, info_text)
         self.update_status_info()
 
 
