@@ -20,6 +20,7 @@ from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
 from transportDB import TransportDB
 from connections import Connections
 from helper import get_coordinates
+from map import Map
 import qdarkstyle
 
 
@@ -95,7 +96,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Transport Search")
-        self.setMinimumSize(QSize(700, 500))
+        self.setMinimumSize(QSize(800, 600))
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
@@ -152,7 +153,7 @@ class MainWindow(QMainWindow):
         input_layout.addWidget(self.search_button)
 
         self.result_tree = QTreeView()
-        self.result_tree.setFixedHeight(250)
+        self.result_tree.setFixedHeight(200)
         self.result_model = QStandardItemModel()
         self.result_model.setHorizontalHeaderLabels(["Information", "Departure", "Arrival", "Duration", "Transfers"])
         self.result_tree.setModel(self.result_model)
@@ -170,7 +171,7 @@ class MainWindow(QMainWindow):
 
         self.status_info = QTextEdit()
         self.status_info.setReadOnly(True)
-        self.status_info.setFixedHeight(80)
+        self.status_info.setFixedHeight(200)
         layout.addWidget(self.status_info)
 
         self.map_button = QPushButton("View Map")
@@ -221,16 +222,10 @@ class MainWindow(QMainWindow):
                     ])
             else:
                 self.result_model.removeRows(0, self.result_model.rowCount())
-                self.status_text = ("No Connection available"
-                                    "Press show Map for further Information")
+                self.status_text = ("No direct Connection available\n"
+                                    "Press 'View Map' for further Information")
                 self.update_status_info()
 
-    def no_connection(self):
-        self.status_info = (f"No direct connection found."
-                            f"Procent are Reachebale with this app"
-                            f"reachable points are: "
-                            f"further way needs to be looked up on: ")
-        self.update_status_info()
 
     def show_connection_info(self, index: QModelIndex):
         selected_row = index.row()
@@ -265,7 +260,17 @@ class MainWindow(QMainWindow):
 
     def get_map(self):
         cities = self.extract_coordinates()
-        return cities
+        cone_map = Map(cities)
+        reachable = cone_map.reacheables
+        if reachable:
+            info_text = "Reachable Locations are:\n"
+            for location in reachable:
+                info_text += f"{str(location['name'])}\n"
+        else:
+            info_text = ("Apologizes!\n"
+                         "No reachable Connections found!")
+        self.status_text = info_text
+        self.update_status_info()
 
 
 if __name__ == "__main__":
