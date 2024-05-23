@@ -12,7 +12,7 @@ and retruning the data as json or as a list of all station in the chosen locatio
 
 class Locations:
     def __init__(self, location=None, lat=None, lng=None):
-        self.url = "http://transport.opendata.ch/v1/locations"  # TODO: make the url a static variable
+        self.url = "http://transport.opendata.ch/v1/locations"
         self.location = location
         self.lat = lat
         self.lng = lng
@@ -44,10 +44,7 @@ class Locations:
         return most_language
 
     def split_words(self, text):
-        if not isinstance(text, str) or not text.strip():
-            return ""
-        # Regex pattern to split by space, slash, and any other desired delimiters
-        pattern = r'[\/-]'  # Hier kannst du weitere Trennzeichen hinzufügen, falls nötig
+        pattern = r' [\/-]'
         return re.split(pattern, text)
 
     def check_locations(self):
@@ -57,12 +54,8 @@ class Locations:
         check_location = translator.translate(self.location)
         for station in self.stations:
             station_separated_special = self.split_words(station)
-            station_separated = station.split()
-            if station_separated[0].lower() == check_location.lower():
+            if station_separated_special[0].lower() == check_location.lower():
                 return station
-            else:
-                if station_separated_special[0].lower() or station_separated_special[1].lower() == check_location.lower():
-                    return station
         return None
 
     def get_station_names(self, loc_data):
@@ -79,7 +72,6 @@ def main():
     loc.get_station_names(loc_data)
     print(loc.check_locations())
     print(loc.check_language())
-    print(loc.stations)
 
 
 if __name__ == "__main__":
