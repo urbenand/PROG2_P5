@@ -3,6 +3,7 @@ from helper import get_coordinates, get_country_name
 from modules.csv_reader import get_countries, get_base_cities
 from connections import Connections
 
+
 class TransportDB:
     def __init__(self, db_path="TransportDB.json"):
         self.db = TinyDB(db_path)
