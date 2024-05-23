@@ -49,6 +49,7 @@ class TransportDB:
                 reachable = "True"
             else:
                 reachable = "False"
+
             self.add_reachable_cities(city[0], x, y, country, reachable)
 
     def fill_countries(self):
