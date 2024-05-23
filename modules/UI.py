@@ -17,7 +17,9 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
+from transportDB import TransportDB
 from connections import Connections
+from locations import Locations
 import qdarkstyle
 
 
@@ -99,6 +101,7 @@ class MainWindow(QMainWindow):
 
         self.connection_info = []
         self.status_text = ""
+        self.db = TransportDB()
 
         layout = QVBoxLayout()
         self.central_widget.setLayout(layout)
@@ -183,6 +186,10 @@ class MainWindow(QMainWindow):
     def search_connections(self):
         departure = self.departure_input.text().strip()
         destination = self.destination_input.text().strip()
+        dep_check = Locations(departure)
+        departure = dep_check.check_locations()
+        des_check = Locations(destination)
+        destination = des_check.check_locations()
         date = self.date_input.date().toString("yyyy-MM-dd")
         time = self.time_input.time().toString("HH:mm")
 
@@ -215,7 +222,7 @@ class MainWindow(QMainWindow):
                         QStandardItem(transfers)
                     ])
             else:
-                self.result_model.clear()
+                self.result_model.removeRows(0, self.result_model.rowCount())
                 self.status_text = "No Connection available"
                 self.update_status_info()
 
