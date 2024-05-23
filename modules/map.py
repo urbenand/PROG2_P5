@@ -139,7 +139,10 @@ class Map:
             distance = haversine(self.cs_dest[0], self.cs_dest[1], cities["latitude"], cities["longitude"])
             distances.append((distance, cities["name"]))
 
-        return min(distances)
+        if distances:
+            return min(distances)
+        else:
+            return None
 
 def main():
     cities = []
