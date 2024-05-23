@@ -42,7 +42,6 @@ class Connections:
         data = self.connection_data()
         if not data:
             return None
-        pprint.pprint(data)
         connections_info = []
 
         for connection in data['connections']:
@@ -54,13 +53,15 @@ class Connections:
                     'id': connection['from']['station']['id'],
                     'name': connection['from']['station']['name'],
                     'departure': departure_dt.strftime("%d.%m.%Y %H:%M"),
-                    'platform': connection['from']['platform']
+                    'platform': connection['from']['platform'],
+                    'location': connection['from']['location']['coordinate']
                 },
                 'to': {
                     'id': connection['to']['station']['id'],
                     'name': connection['to']['station']['name'],
                     'arrival': arrival_dt.strftime("%d.%m.%Y %H:%M"),
-                    'platform': connection['to']['platform']
+                    'platform': connection['to']['platform'],
+                    'location': connection['to']['location']['coordinate']
                 },
                 'duration': format_duration(connection['duration']),
                 'transfers': connection['transfers'],
