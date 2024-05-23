@@ -194,7 +194,7 @@ class MainWindow(QMainWindow):
         time = self.time_input.time().toString("HH:mm")
 
         if self.departure and self.destination:
-
+            # TODO: Blacklist abfrage
             self.map_button.setEnabled(True)
             con = Connections(self.departure, self.destination, date, time)
             connections_info = con.connection_data_extraction()
@@ -222,11 +222,11 @@ class MainWindow(QMainWindow):
                         QStandardItem(transfers)
                     ])
             else:
+                # TODO: Blacklist entry self.country, self.destination, self.deparutre,
                 self.result_model.removeRows(0, self.result_model.rowCount())
                 self.status_text = ("No direct Connection available\n"
                                     "Press 'View Map' for further Information")
                 self.update_status_info()
-
 
     def show_connection_info(self, index: QModelIndex):
         selected_row = index.row()
@@ -236,6 +236,9 @@ class MainWindow(QMainWindow):
 
     def update_status_info(self):
         self.status_info.setPlainText(self.status_text)
+
+    def Blacklist_entry_text(self):
+        pass
 
     def extract_coordinates(self):
         cities = []
