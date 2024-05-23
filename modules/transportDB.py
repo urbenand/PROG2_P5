@@ -1,7 +1,8 @@
 from tinydb import TinyDB, Query
 from helper import get_coordinates, get_country_name
 from modules.csv_reader import get_countries, get_base_cities
-from connections import Connections
+from modules.connections import Connections
+
 
 class TransportDB:
     def __init__(self, db_path="TransportDB.json"):
@@ -29,7 +30,8 @@ class TransportDB:
             "web_link": web_link
         })
 
-    def add_blacklist_entry(self, departure, destination, departure_lon, departure_lat, destination_lon, destination_lat, country, weblink, text=""):
+    def add_blacklist_entry(self, departure, destination, departure_lon, departure_lat, destination_lon,
+                            destination_lat, country, weblink, text=""):
         self.blacklist.insert({
             "departure": departure,
             "destination": destination,
@@ -42,7 +44,6 @@ class TransportDB:
     def update_blacklist(self, departure, destination, new_text):
         Entry = Query()
         self.blacklist.update({"text": new_text}, (Entry.departure == departure) & (Entry.destination == destination))
-
 
     def truncate_table(self, table_name):
         table = getattr(self, table_name)
