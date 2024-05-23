@@ -29,7 +29,7 @@ class TransportDB:
             "web_link": web_link
         })
 
-    def add_blacklist_entry(self, departure, destination, departure_lon, departure_lat, destination_lon, destination_lat, country, weblink):
+    def add_blacklist_entry(self, departure, destination, departure_lon, departure_lat, destination_lon, destination_lat, country, weblink, text=""):
         self.blacklist.insert({
             "departure": departure,
             "destination": destination,
@@ -38,6 +38,11 @@ class TransportDB:
             "country": country,
             "weblink": weblink
         })
+
+    def update_blacklist(self, departure, destination, new_text):
+        Entry = Query()
+        self.blacklist.update({"text": new_text}, (Entry.departure == departure) & (Entry.destination == destination))
+
 
     def truncate_table(self, table_name):
         table = getattr(self, table_name)

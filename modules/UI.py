@@ -186,7 +186,6 @@ class MainWindow(QMainWindow):
         else:
             self.search_button.setEnabled(False) and self.map_button.setEnabled(False)
 
-    # Update destination logic if not reachable, update status info aswell
     def search_connections(self):
 
         self.departure = self.departure_input.text().strip()
@@ -286,7 +285,8 @@ class MainWindow(QMainWindow):
             lon, lat = get_coordinates(closest_city_name)
             missing_distance = int(closest_city[0])
             reachable_distance = haversine(cities[0][0], cities[0][1], lon, lat)
-            total_distance, reachable_percent, leftover_percent = percent_calculator(reachable_distance, missing_distance)
+            total_distance, reachable_percent, leftover_percent = percent_calculator(reachable_distance,
+                                                                                     missing_distance)
             info_text = "Reachable Locations are:\n"
             for location in reachable:
                 if location['name'] == closest_city[1]:
