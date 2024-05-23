@@ -94,19 +94,32 @@ class Map:
             if data:
                 self.reacheables.append(data)
 
+        if self.reacheables:
+            closest_city = self.get_closest_city()
+
         # mark reachable cities
         for data in self.reacheables:
-            fig.add_trace(go.Scattermapbox(
-                lat=[data["latitude"]],
-                lon=[data["longitude"]],
-                mode='markers',
-                fill='toself',
-                fillcolor='rgba(255, 128, 255, 0.5)',
-                marker=dict(size=15, color=['blue', 'red']),
-            ))
+            if data["name"] == closest_city[1]:
+                fig.add_trace(go.Scattermapbox(
+                    lat=[data["latitude"]],
+                    lon=[data["longitude"]],
+                    mode='markers',
+                    fill='toself',
+                    fillcolor='rgba(255, 128, 255, 0.5)',
+                    marker=dict(size=40, color=['red']),
+                ))
+            else:
+                fig.add_trace(go.Scattermapbox(
+                    lat=[data["latitude"]],
+                    lon=[data["longitude"]],
+                    mode='markers',
+                    fill='toself',
+                    fillcolor='rgba(255, 128, 255, 0.5)',
+                    marker=dict(size=15, color=['blue']),
+                ))
 
         # mark closest city
-        self.get_closest_city()
+
 
         fig.show()
 
@@ -124,12 +137,13 @@ class Map:
 
         for cities in self.reacheables:
             distance = haversine(self.cs_dest[0], self.cs_dest[1], cities["latitude"], cities["longitude"])
-            print(distance)
+            distances.append((distance, cities["name"]))
 
+        return min(distances)
 
 def main():
     cities = []
-    city = ["Genf", "München"]
+    city = ["Zürich", "Berlin"]
 
     for cit in city:
         lat, lon = get_coordinates(cit)
