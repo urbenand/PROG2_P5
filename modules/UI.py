@@ -19,7 +19,7 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
 from transportDB import TransportDB
 from connections import Connections
-from helper import get_coordinates, get_country_name
+from helper import get_coordinates, get_country_name, haversine, percent_calculator
 from map import Map
 import qdarkstyle
 
@@ -281,10 +281,15 @@ class MainWindow(QMainWindow):
         closest_city = cone_map.get_closest_city()
         print(closest_city)
         if reachable:
+            closest_city_name = closest_city[1]
+            lon, lat = get_coordinates(closest_city_name)
+            missing_distance = int(closest_city[0])
+            reachable_distance = haversine(cities[0][0], cities[0][1], lon, lat)
+            total_distance, reachable_percent, leftover_percent = percent_calculator(reachable_distance, missing_distance)
             info_text = "Reachable Locations are:\n"
             for location in reachable:
                 if location['name'] == closest_city[1]:
-                    info_text += f"Closest: {str(location['name'])}\n"
+                    info_text += f"Closest: {str(location['name'])}, covers {round(reachable_percent)}% of the distance\n"
                 else:
                     info_text += f"{str(location['name'])}\n"
         else:
@@ -292,7 +297,8 @@ class MainWindow(QMainWindow):
                          "No reachable Connections found!")
         web_site = self.db.get_web_link(self.country)
         if web_site:
-            info_text += (f"Further Connection can be looked up at:\n"
+            info_text += (f"Check Connection to {closest_city[1]} for more Information about Travel time.\n"
+                          f"Check Connection from {closest_city[1]} to {self.destination} at:\n"
                           f"{web_site}")
         self.status_text = info_text
         self.update_status_info()
