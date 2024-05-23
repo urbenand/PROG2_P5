@@ -3,6 +3,7 @@
 import requests
 from datetime import datetime
 from helper import format_duration
+from locations import Locations
 import pprint
 
 
@@ -17,6 +18,7 @@ class Connections:
         self.destination = destination
         self.date = date
         self.time = time
+        self.check_locations()
 
     def connection_data(self):
         # Fetches connection data from the API and returns the response as a JSON object.
@@ -34,6 +36,12 @@ class Connections:
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
             return None
+
+    def check_locations(self):
+        dep_check = Locations(self.departure)
+        self.departure = dep_check.check_locations()
+        des_check = Locations(self.destination)
+        self.destination = des_check.check_locations()
 
     def connection_data_extraction(self):
         """
@@ -117,7 +125,7 @@ class Connections:
 
 def main():
     departure = "Othmarsingen"
-    destination = "Zürich"
+    destination = "Berlin"
     con = Connections(departure, destination, date="2024-05-19", time="10:00")
     connections_info = con.connection_data_extraction()
     pprint.pprint(connections_info)

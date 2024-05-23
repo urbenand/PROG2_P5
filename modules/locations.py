@@ -12,7 +12,7 @@ and retruning the data as json or as a list of all station in the chosen locatio
 
 class Locations:
     def __init__(self, location=None, lat=None, lng=None):
-        self.url = "http://transport.opendata.ch/v1/locations"
+        self.url = "http://transport.opendata.ch/v1/locations"  # TODO: make the url a static variable
         self.location = location
         self.lat = lat
         self.lng = lng
@@ -35,7 +35,7 @@ class Locations:
             print(f"Error retrieving location data: {e}")
             return None
 
-    def check_german(self):
+    def check_language(self):
         check_list = []
         for station in self.stations:
             check_list.append(detect(station))
@@ -43,24 +43,23 @@ class Locations:
         most_language, _ = counter.most_common(1)[0]
         return most_language
 
-    def split_station_names(self, text):
+    def split_words(self, text):
         # Regex pattern to split by space, slash, and any other desired delimiters
         pattern = r'[\/-]'  # Hier kannst du weitere Trennzeichen hinzufügen, falls nötig
         return re.split(pattern, text)
 
     def check_locations(self):
         self.get_station_names(self.query_location_data())
-        language_name = self.check_german()
+        language_name = self.check_language()
         translator = Translator(from_lang="de", to_lang=language_name)
         check_location = translator.translate(self.location)
         for station in self.stations:
-            station_separated_special = self.split_station_names(station)
+            station_separated_special = self.split_words(station)
             station_separated = station.split()
             if station_separated[0].lower() == check_location.lower():
                 return station
             else:
-                if station_separated_special[0].lower() or station_separated_special[
-                    1].lower() == check_location.lower():
+                if station_separated_special[0].lower() or station_separated_special[1].lower() == check_location.lower():
                     return station
         return None
 
@@ -77,7 +76,7 @@ def main():
     print(loc_data)
     loc.get_station_names(loc_data)
     print(loc.check_locations())
-    print(loc.check_german())
+    print(loc.check_language())
     print(loc.stations)
 
 
