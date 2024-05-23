@@ -19,7 +19,7 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
 from transportDB import TransportDB
 from connections import Connections
-from locations import Locations
+from helper import get_coordinates
 import qdarkstyle
 
 
@@ -100,6 +100,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.connection_info = []
+        self.departure = ""
+        self.destination = ""
         self.status_text = ""
         self.db = TransportDB()
 
@@ -184,20 +186,16 @@ class MainWindow(QMainWindow):
 
     # Update destination logic if not reachable, update status info aswell
     def search_connections(self):
-        departure = self.departure_input.text().strip()
-        destination = self.destination_input.text().strip()
-        dep_check = Locations(departure)
-        departure = dep_check.check_locations()
-        des_check = Locations(destination)
-        destination = des_check.check_locations()
+        self.departure = self.departure_input.text().strip()
+        self.destination = self.destination_input.text().strip()
         date = self.date_input.date().toString("yyyy-MM-dd")
         time = self.time_input.time().toString("HH:mm")
 
-        if departure and destination:
+        if self.departure and self.destination:
+
             self.map_button.setEnabled(True)
-            con = Connections(departure, destination, date, time)
+            con = Connections(self.departure, self.destination, date, time)
             connections_info = con.connection_data_extraction()
-            print(connections_info)
             self.connection_info = connections_info
             self.result_model.removeRows(0, self.result_model.rowCount())
 
@@ -223,8 +221,16 @@ class MainWindow(QMainWindow):
                     ])
             else:
                 self.result_model.removeRows(0, self.result_model.rowCount())
-                self.status_text = "No Connection available"
+                self.status_text = ("No Connection available"
+                                    "Press show Map for further Information")
                 self.update_status_info()
+
+    def no_connection(self):
+        self.status_info = (f"No direct connection found."
+                            f"Procent are Reachebale with this app"
+                            f"reachable points are: "
+                            f"further way needs to be looked up on: ")
+        self.update_status_info()
 
     def show_connection_info(self, index: QModelIndex):
         selected_row = index.row()
@@ -235,18 +241,31 @@ class MainWindow(QMainWindow):
     def update_status_info(self):
         self.status_info.setPlainText(self.status_text)
 
-    def get_map(self):
-        pass
+    def extract_coordinates(self):
+        cities = []
+        if self.connection_info:
+            lat_dep = self.connection_info[0]['from']["location"].get("x")
+            lon_dep = self.connection_info[0]['from']["location"].get("y")
+            lat_des = self.connection_info[0]['to']["location"].get("x")
+            lon_des = self.connection_info[0]['to']["location"].get("y")
 
-    """       departure = self.departure_input.text().strip()
-        destination = self.destination_input.text().strip()
-        cities = [departure, destination]
-        cities_coordinates = []
-        for city in cities:
-            lat, lon = get_coordinates(city)
-            if lat and lon:
-                cities_coordinates.append({"lat": lat, "lon": lon})
-        Map(cities_coordinates)"""
+            cities.append((float(lat_dep), float(lon_dep)))
+            cities.append((float(lat_des), float(lon_des)))
+            print(cities)
+            return cities
+        else:
+            print(self.departure)
+            print(self.destination)
+            lat_dep, lon_dep = get_coordinates(self.departure)
+            lat_des, lon_des = get_coordinates(self.destination)
+
+            cities.append((float(lat_dep), float(lon_dep)))
+            cities.append((float(lat_des), float(lon_des)))
+            return cities
+
+    def get_map(self):
+        cities = self.extract_coordinates()
+        return cities
 
 
 if __name__ == "__main__":

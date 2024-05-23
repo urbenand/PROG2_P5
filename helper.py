@@ -112,6 +112,13 @@ def calculate_triangle_points(lat1, lon1, lat2, lon2, angle_deg):
     return (lat_N, lon_N), (lat_S, lon_S)
 
 
+def percent_calculator(distance1, distance2):
+    full_distance = distance1 + distance2
+    reachable_distance = 100 / full_distance * distance1
+    leftover_distance = 100 / full_distance * distance2
+    return full_distance, reachable_distance, leftover_distance
+
+
 if __name__ == "__main__":
     test_haversine()
     test_get_coordinates()
