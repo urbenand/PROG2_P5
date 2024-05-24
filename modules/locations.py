@@ -44,7 +44,7 @@ class Locations:
         return most_language
 
     def split_words(self, text):
-        pattern = r' [\/-]'
+        pattern = r'[ \/-]'
         return re.split(pattern, text)
 
     def check_locations(self):

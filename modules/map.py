@@ -37,7 +37,8 @@ class Map:
     def __init__(self, cities):
         self.cs_dept = cities[0]
         self.cs_dest = cities[1]
-        self.cities = TransportDB().cities
+        self.cities = TransportDB().get_reachable_cities()
+
 
         # Calculate triangle points
         self.cs_a, self.cs_b = calculate_triangle_points(self.cs_dept[0], self.cs_dept[1], self.cs_dest[0],
@@ -89,6 +90,7 @@ class Map:
 
         # Check if key cities are within the 20° cone between A and B
         for city in self.cities:
+            print(city)
             # Check if cities are within the edges of the polygon
             data = self.check_cities_in_polygon([self.cs_dept, self.cs_a, self.cs_b], city)
             if data:

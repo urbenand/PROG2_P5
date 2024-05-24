@@ -132,7 +132,7 @@ class Connections:
 
 def main():
     departure = "Othmarsingen"
-    destination = "Moskau"
+    destination = "Zürich"
     con = Connections(departure, destination, date="2024-05-19", time="10:00")
     print(con.check_reachability())
     connections_info = con.connection_data_extraction()

@@ -91,6 +91,11 @@ class TransportDB:
         result = self.blacklist.search((Blacklist.departure == city1) & (Blacklist.destination == city2))
         return result[0] if result else False
 
+    def get_reachable_cities(self):
+        # Directly query the database to retrieve cities where reachable is True
+        City = Query()
+        return self.cities.search(City.reachable == "True")
+
     def show_table(self, table_name):
         table = getattr(self, table_name)
         for item in table.all():
@@ -103,7 +108,7 @@ class TransportDB:
 
 def main():
     db = TransportDB()
-    # db.truncate_table("blacklist")
+    db.truncate_table("blacklist")
     # db.main_fill()
     # print(db.get_web_link("Schweiz"))
     # db.show_table("cities")

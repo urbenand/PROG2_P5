@@ -261,11 +261,8 @@ class MainWindow(QMainWindow):
 
             cities.append((float(lat_dep), float(lon_dep)))
             cities.append((float(lat_des), float(lon_des)))
-            print(cities)
             return cities
         else:
-            print(self.departure)
-            print(self.destination)
             lat_dep, lon_dep = get_coordinates(self.departure)
             lat_des, lon_des = get_coordinates(self.destination)
             self.country = get_country_name(lat_des, lon_des)
