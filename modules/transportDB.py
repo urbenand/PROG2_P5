@@ -108,11 +108,11 @@ class TransportDB:
 
 def main():
     db = TransportDB()
-    db.truncate_table("blacklist")
+    # db.truncate_table("blacklist")
     # db.main_fill()
     # print(db.get_web_link("Schweiz"))
-    # db.show_table("cities")
-    # db.show_table("countries")
+    db.show_table("cities")
+    db.show_table("countries")
     db.show_table("blacklist")
 
 

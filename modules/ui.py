@@ -233,8 +233,8 @@ class MainWindow(QMainWindow):
                                                 cities[1][1], cities[1][0], self.country,
                                                 self.db.get_web_link(self.country))
                     self.result_model.removeRows(0, self.result_model.rowCount())
-                    self.status_text = ("No direct Connection available\n"
-                                        "Press 'View Map' for further Information")
+                    self.status_text = ("No direct connection available\n"
+                                        "Press 'View Map' for further information")
                     self.update_status_info()
 
             else:
@@ -283,19 +283,19 @@ class MainWindow(QMainWindow):
             reachable_distance = haversine(cities[0][0], cities[0][1], lon, lat)
             total_distance, reachable_percent, leftover_percent = percent_calculator(reachable_distance,
                                                                                      missing_distance)
-            info_text = "Reachable Locations are:\n"
+            info_text = "Reachable locations are:\n"
             for location in reachable:
                 if location['name'] == closest_city[1]:
                     info_text += f"Closest: {str(location['name'])}, covers {round(reachable_percent)}% of the distance\n"
                 else:
                     info_text += f"{str(location['name'])}\n"
         else:
-            info_text = ("Apologizes!\n"
-                         "No reachable Connections found!")
+            info_text = ("Apologies!\n"
+                         "No reachable connections displayable!")
         web_site = self.db.get_web_link(self.country)
         if web_site:
-            info_text += (f"Check Connection to {closest_city[1]} for more Information about Travel time.\n"
-                          f"Check Connection from {closest_city[1]} to {self.destination} at:\n"
+            info_text += (f"Check connection to {closest_city[1]} for more information about travel time.\n"
+                          f"Check connection from {closest_city[1]} to {self.destination} at:\n"
                           f"{web_site}")
         self.status_text = info_text
         self.db.update_blacklist(self.departure, self.destination, info_text)
