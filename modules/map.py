@@ -34,6 +34,8 @@ def calculate_triangle_points(lat_a, lon_a, lat_b, lon_b, angle_deg):
 
 
 class Map:
+    # TODO: define magic number of cone angle as variable, won't accept it in the calculation below
+    cone_angle = 20
     def __init__(self, cities):
         self.cs_dept = cities[0]
         self.cs_dest = cities[1]
@@ -42,7 +44,7 @@ class Map:
 
         # Calculate triangle points
         self.cs_a, self.cs_b = calculate_triangle_points(self.cs_dept[0], self.cs_dept[1], self.cs_dest[0],
-                                                         self.cs_dest[1], 10)
+                                                         self.cs_dest[1], 20)
 
         # Create map
         fig = go.Figure()

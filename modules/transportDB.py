@@ -55,6 +55,7 @@ class TransportDB:
             x, y = get_coordinates(city[0])
             country = get_country_name(x, y)
             connection = Connections("Aarau", str(city[0]))
+            # TinyDB can't handle bools, so we used strings.
             if connection.check_reachability():
                 reachable = "True"
             else:
@@ -94,6 +95,7 @@ class TransportDB:
     def get_reachable_cities(self):
         # Directly query the database to retrieve cities where reachable is True
         City = Query()
+        # TODO: Change "True" and "False" to 1 / 0, stringcomparison is slow
         return self.cities.search(City.reachable == "True")
 
     def show_table(self, table_name):
