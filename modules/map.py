@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import math
 from shapely import Point, Polygon
 from helper import get_coordinates, haversine
-from modules.transportDB import TransportDB
+from transportDB import TransportDB
 
 
 # Calculate points for triangle on both sides of the trace between A and B
