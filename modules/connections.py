@@ -3,7 +3,7 @@
 import requests
 from datetime import datetime
 from helper import format_duration
-from modules.locations import Locations
+from locations import Locations
 import pprint
 
 

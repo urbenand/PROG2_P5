@@ -17,10 +17,10 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtCore import QSize, QDate, QTime, QModelIndex
-from modules.transportDB import TransportDB
-from modules.connections import Connections
+from transportDB import TransportDB
+from connections import Connections
 from helper import get_coordinates, get_country_name, haversine, percent_calculator
-from modules.map import Map
+from map import Map
 import qdarkstyle
 
 
